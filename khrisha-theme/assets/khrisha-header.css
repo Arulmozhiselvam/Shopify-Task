@@ -38,21 +38,37 @@
 }
 /* Dawn swaps the search icon for a close icon while the modal is open. */
 .header--kh .header__search--pill details[open] .header__search-label { display: none; }
-.header--kh .header__search--pill .header__icon--search:hover .header__search-label { text-decoration: none; }
+.header--kh .header__search--pill .header__icon--search,
+.header--kh .header__search--pill .header__search-label { text-decoration: none !important; }
+
+/* Dawn hides the left search on desktop when customer accounts are on; the pill lives there. */
+@media screen and (min-width: 990px) {
+  .header.header--kh > .header__search--pill { display: inline-flex; }
+  .header.header--kh > .header__search--pill .header__icon--search { width: 310px; }
+  .header.header--kh .header__icons > .header__search { display: none; }
+}
 
 /* ---------- Bag (n) ---------- */
+/* Dawn draws the cart SVG at 44px (the glyph has built-in padding), so keep its size. */
 .header--kh .header__icon--cart {
   width: auto;
-  gap: 6px;
-  padding: 0 6px;
+  align-items: center;
+  margin-right: 0;
   font-size: 15px;
   letter-spacing: 0;
+  text-decoration: none;
 }
-.header--kh .header__icon--cart .svg-wrapper { width: 22px; height: 22px; }
-.header--kh .header__icon--cart .icon { width: 22px; height: 22px; }
 .header--kh .header__icon--cart .cart-count-bubble { display: none; }
+.header--kh .header__icon--cart .svg-wrapper { margin-inline: -8px; }
 .header--kh .header__bag-label,
-.header--kh .header__bag-count { display: inline; font-weight: 500; color: var(--kh-ink); }
+.header--kh .header__bag-count {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--kh-ink);
+  text-decoration: none;
+}
 .header:not(.header--kh) .header__bag-label,
 .header:not(.header--kh) .header__bag-count { display: none; }
 
@@ -83,5 +99,13 @@
   }
   .header--kh .header__search-label,
   .header--kh .header__bag-label { display: none; }
-  .header--kh .header__icon--cart { padding: 0; }
+  .header--kh .header__icon--cart .svg-wrapper { margin-inline: -10px -6px; }
+}
+
+/* ---------- Announcement bar ---------- */
+:root:has(.header--kh) .announcement-bar__message {
+  font-family: var(--font-body-family);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
