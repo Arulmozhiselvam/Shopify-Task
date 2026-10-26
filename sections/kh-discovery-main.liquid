@@ -19,6 +19,9 @@
   assign media_count = image_media.size
   assign crumb_collection = section.settings.breadcrumb_collection | default: collection | default: product.collections.first
   assign set_label = set_size | append: ' × ' | append: sample_size
+  assign caption_eyebrow = mf.gallery_eyebrow.value | default: section.settings.caption_eyebrow
+  assign caption_text = mf.gallery_caption.value | default: section.settings.caption_text
+  assign delivery_text = mf.delivery_note.value | default: section.settings.delivery_text
 -%}
 
 <script src="{{ 'khrisha-product.js' | asset_url }}" defer="defer"></script>
@@ -83,8 +86,8 @@
           </div>
         {%- endif -%}
         <div class="discovery-gallery-caption">
-          <p class="eyebrow">{{ section.settings.caption_eyebrow }}</p>
-          <p>{{ section.settings.caption_text }}</p>
+          <p class="eyebrow">{{ caption_eyebrow }}</p>
+          <p>{{ caption_text }}</p>
         </div>
       </div>
 
@@ -197,7 +200,7 @@
 
         <p class="detail-delivery">
           {%- if current_variant.available -%}
-            In stock · {{ section.settings.delivery_text }}
+            In stock · {{ delivery_text }}
           {%- else -%}
             <span class="is-out">Sold out</span>
           {%- endif -%}

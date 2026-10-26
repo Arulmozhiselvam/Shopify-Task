@@ -27,6 +27,7 @@
     endfor
   endif
 
+  assign delivery_text = mf.delivery_note.value | default: section.settings.delivery_text
   assign single_default_variant = false
   if product.has_only_default_variant
     assign single_default_variant = true
@@ -42,7 +43,7 @@
     data-url="{{ product.url }}"
     data-money-format="{{ shop.money_format | escape }}"
     data-button-label="{{ section.settings.button_label | escape }}"
-    data-delivery-text="{{ section.settings.delivery_text | escape }}"
+    data-delivery-text="{{ delivery_text | escape }}"
     data-sold-out-text="{{ section.settings.sold_out_text | escape }}"
   >
     <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -219,7 +220,7 @@
 
         <p class="detail-delivery" data-availability>
           {%- if current_variant.available -%}
-            In stock · {{ section.settings.delivery_text }}
+            In stock · {{ delivery_text }}
           {%- else -%}
             <span class="is-out">Sold out</span> · {{ section.settings.sold_out_text }}
           {%- endif -%}
@@ -249,7 +250,7 @@
     { "type": "text", "id": "button_label", "label": "Add to cart label", "default": "Add to bag" },
     { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout button", "default": true },
     { "type": "checkbox", "id": "show_installments", "label": "Show 4 interest-free payments", "default": true },
-    { "type": "text", "id": "delivery_text", "label": "Delivery message", "default": "Ships from South Yarra next business day" },
+    { "type": "text", "id": "delivery_text", "label": "Delivery message", "info": "Overridden per product by custom.delivery_note.", "default": "Ships from South Yarra next business day" },
     { "type": "text", "id": "sold_out_text", "label": "Sold-out message", "default": "Contact the boutique for availability" },
     { "type": "header", "content": "Trust strip" },
     { "type": "select", "id": "trust_1_icon", "label": "Item 1 icon", "default": "shield", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },

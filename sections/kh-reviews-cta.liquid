@@ -1,6 +1,9 @@
 {%- liquid
   assign display_name = product.metafields.custom.display_name.value | default: product.title
-  assign link = section.settings.link | default: '#shopify-product-reviews'
+  assign link = product.metafields.custom.reviews_url.value | default: section.settings.link | default: '#shopify-product-reviews'
+  # Standard review metafields, written by Shopify Product Reviews / Judge.me and most review apps.
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | default: 0
 -%}
 <div class="kh">
   <section id="product-reviews" class="product-reviews section-space">
@@ -10,6 +13,14 @@
         <h2 class="section-title">Reviews of {{ display_name }}</h2>
       </div>
       <div>
+        {%- if rating != blank -%}
+          <p class="review-summary">
+            <span class="review-score">{{ rating.rating | round: 1 }}</span>
+            <span class="review-stars" style="--rating: {{ rating.rating | divided_by: rating.scale_max | times: 100 }}%" aria-hidden="true">★★★★★</span>
+            <span class="visually-hidden">{{ rating.rating | round: 1 }} out of {{ rating.scale_max }} stars,</span>
+            {{ rating_count }} review{% if rating_count != 1 %}s{% endif %}
+          </p>
+        {%- endif -%}
         <p>{{ section.settings.text | replace: '[product]', display_name }}</p>
         <a class="kh-btn kh-btn--outline shoplink" href="{{ link }}">
           {{- section.settings.link_label }}{% render 'kh-icon', name: 'arrow-up-right' -%}
@@ -28,7 +39,8 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "This fragrance only" },
     { "type": "text", "id": "text", "label": "Text", "info": "[product] is replaced with the product name.", "default": "Read customer experiences of [product] at our online boutique." },
     { "type": "text", "id": "link_label", "label": "Link label", "default": "Read product reviews" },
-    { "type": "url", "id": "link", "label": "Link", "info": "Leave empty to jump to a reviews app block on this page." }
+    { "type": "url", "id": "link", "label": "Link", "info": "Used when the product's custom.reviews_url is empty. Leave both empty to jump to a reviews app block on this page." },
+    { "type": "paragraph", "content": "The star rating shows automatically when a reviews app fills the standard reviews.rating metafields." }
   ],
   "presets": [{ "name": "Khrisha reviews" }]
 }

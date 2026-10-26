@@ -1,5 +1,11 @@
+{%- comment -%}
+  Steps source: custom.steps (list of `discovery_step` metaobjects: icon, title, text).
+  Image: custom.steps_image. Both fall back to the section's blocks / image setting.
+{%- endcomment -%}
 {%- liquid
-  assign image = section.settings.image
+  assign mf = product.metafields.custom
+  assign steps = mf.steps.value
+  assign image = mf.steps_image.value | default: section.settings.image
   if image == blank and product.images.size > 2
     assign image = product.images[2]
   endif
@@ -18,18 +24,34 @@
           {{ image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: image.alt, sizes: '(min-width: 801px) 50vw, 100vw', widths: '500, 800, 1200' }}
         {%- endif -%}
         <div class="discovery-steps">
-          {%- for block in section.blocks -%}
-            <article {{ block.shopify_attributes }}>
-              <div class="discovery-step-icon">
-                {%- render 'kh-icon', name: block.settings.icon -%}
-                <span>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
-              </div>
-              <div>
-                <h3>{{ block.settings.title }}</h3>
-                <p>{{ block.settings.text }}</p>
-              </div>
-            </article>
-          {%- endfor -%}
+          {%- if steps != blank -%}
+            {%- for step in steps -%}
+              {%- assign icon = step.icon.value | default: 'sparkles' | downcase -%}
+              <article>
+                <div class="discovery-step-icon">
+                  {%- render 'kh-icon', name: icon -%}
+                  <span>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+                </div>
+                <div>
+                  <h3>{{ step.title.value }}</h3>
+                  <p>{{ step.text.value }}</p>
+                </div>
+              </article>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for block in section.blocks -%}
+              <article {{ block.shopify_attributes }}>
+                <div class="discovery-step-icon">
+                  {%- render 'kh-icon', name: block.settings.icon -%}
+                  <span>{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+                </div>
+                <div>
+                  <h3>{{ block.settings.title }}</h3>
+                  <p>{{ block.settings.text }}</p>
+                </div>
+              </article>
+            {%- endfor -%}
+          {%- endif -%}
         </div>
       </div>
     </div>
@@ -44,7 +66,8 @@
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "A more personal way to discover" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Six scents. Endless possibilities." },
-    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to the product's third image." }
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Used when custom.steps_image is empty. Defaults to the product's third image." },
+    { "type": "paragraph", "content": "Steps come from the product's custom.steps metafield (Discovery step metaobjects). When it is empty, the blocks below are used." }
   ],
   "blocks": [
     {

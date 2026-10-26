@@ -1,3 +1,5 @@
+{%- comment -%} Button link: custom.consultation_url, falling back to the section setting. {%- endcomment -%}
+{%- assign help_link = product.metafields.custom.consultation_url.value | default: section.settings.button_link | default: routes.root_url -%}
 <div class="kh">
   <section class="kh-wrap discovery-help">
     <div>
@@ -5,7 +7,7 @@
       <h2 class="section-title">{{ section.settings.heading }}</h2>
     </div>
     {%- if section.settings.button_label != blank -%}
-      <a class="kh-btn kh-btn--outline shoplink" href="{{ section.settings.button_link | default: routes.root_url }}">
+      <a class="kh-btn kh-btn--outline shoplink" href="{{ help_link }}">
         {{- section.settings.button_label }}{% render 'kh-icon', name: 'arrow-up-right' -%}
       </a>
     {%- endif -%}
@@ -21,7 +23,7 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "A little guidance" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Let’s find your kind of fragrance." },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Book a consultation" },
-    { "type": "url", "id": "button_link", "label": "Button link" }
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Used when the product's custom.consultation_url is empty." }
   ],
   "presets": [{ "name": "Khrisha help band" }]
 }

@@ -373,6 +373,13 @@ kh-product, kh-discovery, kh-card, kh-recommendations { display: block; }
 .kh .product-review-inner { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; }
 .kh .product-review-inner h2 { margin-top: 12px; }
 .kh .product-review-inner p:not(.eyebrow) { margin-bottom: 20px; color: var(--muted-foreground); }
+.kh .product-review-inner .review-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--foreground); font-size: 13px; }
+.kh .review-score { font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--gold-deep); }
+.kh .review-stars {
+  font-size: 15px; letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--gold) var(--rating), color-mix(in oklab, var(--gold) 25%, transparent) var(--rating));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 
 /* ---------- Product cards ---------- */
 .kh .related-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
