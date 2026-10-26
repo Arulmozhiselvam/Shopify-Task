@@ -43,7 +43,20 @@ All definitions use the `custom` namespace on **Products** unless noted. Create 
 | `name` | Single line text | e.g. Bulgarian Rose |
 | `image` | File (image) | Round thumbnail in the note pyramid |
 
-Storefront access must be **on** (the script sets this) so Liquid can read it. Notes are reusable across every fragrance.
+### Metaobject: `faq`
+| Field | Type | |
+|---|---|---|
+| `question` | Single line text | |
+| `answer` | Rich text | |
+
+### Metaobject: `discovery_step`
+| Field | Type | |
+|---|---|---|
+| `title` | Single line text | "Choose your collection" |
+| `text` | Multi-line text | |
+| `icon` | Single line text (choices) | flask / heart / sparkles / gift |
+
+Storefront access must be **on** for all three metaobjects (the script sets this) so Liquid can read them. Entries are reusable across products.
 
 ### Fragrance page
 | Key | Type | Used for |
@@ -66,6 +79,11 @@ Storefront access must be **on** (the script sets this) so Liquid can read it. N
 | `house_collection` | Collection | "More from Kajal" link (empty = vendor page) |
 | `sample_product` | Product | Optional; otherwise the variant named "Sample…" is used |
 | `key_notes` / `size_label` | List text / text | Used when this product appears on a card |
+| `faqs` | List: metaobject (`faq`) | "Your questions, answered" (empty = section blocks) |
+| `delivery_note` | Single line text | Overrides "Ships from South Yarra next business day" |
+| `reviews_url` | URL | "Read product reviews" link |
+| `discovery_product` | Product | "The discovery edit" card link |
+| `reviews.rating` / `reviews.rating_count` | Shopify standard | Star rating in the reviews band, filled by any reviews app |
 
 **Variant metafield** `custom.caption` (Single line text): the small line on each size card ("Full bottle", "Try it first").
 
@@ -76,14 +94,20 @@ Storefront access must be **on** (the script sets this) so Liquid can read it. N
 | `sample_size` | Single line text | "3ml" |
 | `tagline` | Single line text | Intro line under the title |
 | `discovery_collection` | Collection | Fragrances suggested in the pickers |
+| `gallery_eyebrow` / `gallery_caption` | Single line text | Caption under the gallery |
+| `steps` | List: metaobject (`discovery_step`) | "Six scents. Endless possibilities." steps (empty = section blocks) |
+| `steps_image` | File (image) | Image beside the steps (empty = product's 3rd image) |
+| `faqs` | List: metaobject (`faq`) | "A little more about your set" |
+| `consultation_url` | URL | "Book a consultation" button |
+| `delivery_note` | Single line text | Delivery line override |
 
-Every section hides itself, or falls back to sensible defaults, when its metafields are empty. A product with no fragrance data won't show broken blocks.
+**Every section reads its content from metafields.** Where a section also has a theme-editor setting (headings, FAQ blocks, step blocks, links), the metafield wins when it's filled and the setting is the fallback. Sections with no data hide themselves, so a product with missing fields never shows empty blocks. Store-wide labels (section headings, trust strip) stay as section settings. Any of them can also be connected to a metafield in the theme editor with **Connect dynamic source**.
 
 ## How to configure a product
 
 1. Assign the template: **Products → (product) → Theme template → `fragrance`** or **`discovery-set`**.
 2. Fill in the metafields at the bottom of the product page in admin.
-3. For notes, go to **Content → Metaobjects → Scent note**, add an entry (name + image), then pick it in Top/Heart/Base notes.
+3. For notes, FAQs and discovery steps, go to **Content → Metaobjects**, add entries to *Scent note*, *FAQ* or *Discovery step*, then pick them in the product's metafields.
 4. Variant captions: open each variant and fill in **Caption**.
 
 ## Setup
@@ -103,7 +127,7 @@ cd store-setup
 SHOPIFY_STORE=YOUR-STORE.myshopify.com SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=... node setup-store.mjs
 # or: SHOPIFY_ADMIN_TOKEN=shpat_... node setup-store.mjs
 ```
-It creates the metaobject definition, 27 product metafield definitions + 1 variant definition, 9 scent notes, both products (with template suffix and metafields filled), 4 related fragrances, and the Kajal / Fragrances / Samples collections. It's safe to re-run.
+It creates the 3 metaobject definitions, 36 product metafield definitions + 1 variant definition, 9 scent notes, 9 FAQs, 3 discovery steps, both products (with template suffix and metafields filled), 4 related fragrances, and the Kajal / Fragrances / Samples collections. It's safe to re-run.
 
 ### 3. Preview
 Online Store → Themes → *Khrisha assignment* → **Preview**, then open `/products/kajal-lamar-edp-100ml` and `/products/discovery-set`.

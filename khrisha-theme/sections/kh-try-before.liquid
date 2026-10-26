@@ -17,7 +17,7 @@
   if mf.sample_product != blank
     assign sample_url = mf.sample_product.value.url
   endif
-  assign discovery = section.settings.discovery_product
+  assign discovery = mf.discovery_product.value | default: section.settings.discovery_product
 -%}
 <div class="kh">
   <section class="kh-wrap section-space">
@@ -62,7 +62,7 @@
     { "type": "text", "id": "heading", "label": "Heading", "default": "Try before you fall in love" },
     { "type": "text", "id": "sample_text", "label": "Sample text", "default": "Let the fragrance settle on your skin." },
     { "type": "text", "id": "sample_link", "label": "Sample link label", "default": "Explore sampling" },
-    { "type": "product", "id": "discovery_product", "label": "Discovery set product" },
+    { "type": "product", "id": "discovery_product", "label": "Discovery set product", "info": "Used when the product's custom.discovery_product is empty." },
     { "type": "image_picker", "id": "discovery_image", "label": "Discovery image" },
     { "type": "text", "id": "discovery_title", "label": "Discovery title", "default": "The discovery edit" },
     { "type": "text", "id": "discovery_text", "label": "Discovery text", "default": "Find your favourite, one scent at a time." },

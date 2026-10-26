@@ -1,19 +1,30 @@
 {%- comment -%}
-  FAQ accordion. Questions are section blocks so they can be edited per template in the
-  theme editor; each answer can also be connected to a metafield via dynamic sources.
+  FAQ accordion.
+  Source: custom.faqs (list of `faq` metaobjects with `question` + `answer` rich text).
+  Fallback: the section's question blocks, edited in the theme editor.
 {%- endcomment -%}
-{%- if section.blocks.size > 0 -%}
+{%- assign faqs = product.metafields.custom.faqs.value -%}
+{%- if faqs != blank or section.blocks.size > 0 -%}
 <div class="kh">
   <section class="guide-band section-space">
     <div class="kh-wrap guide-inner">
       <h2 class="section-title">{{ section.settings.heading }}</h2>
       <div class="question-list">
-        {%- for block in section.blocks -%}
-          <details {{ block.shopify_attributes }}>
-            <summary>{{ block.settings.question }}<span aria-hidden="true">+</span></summary>
-            <div class="answer">{{ block.settings.answer }}</div>
-          </details>
-        {%- endfor -%}
+        {%- if faqs != blank -%}
+          {%- for faq in faqs -%}
+            <details>
+              <summary>{{ faq.question.value }}<span aria-hidden="true">+</span></summary>
+              <div class="answer">{{ faq.answer | metafield_tag }}</div>
+            </details>
+          {%- endfor -%}
+        {%- else -%}
+          {%- for block in section.blocks -%}
+            <details {{ block.shopify_attributes }}>
+              <summary>{{ block.settings.question }}<span aria-hidden="true">+</span></summary>
+              <div class="answer">{{ block.settings.answer }}</div>
+            </details>
+          {%- endfor -%}
+        {%- endif -%}
       </div>
     </div>
   </section>
@@ -26,6 +37,7 @@
   "tag": "section",
   "class": "kh-section",
   "settings": [
+    { "type": "paragraph", "content": "Shows the product's custom.faqs metafield (FAQ metaobjects). When it is empty, the question blocks below are used." },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Your questions, answered" }
   ],
   "blocks": [

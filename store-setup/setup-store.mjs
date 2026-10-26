@@ -66,36 +66,68 @@ const json = (v) => JSON.stringify(v);
 const richText = (paragraphs) =>
   json({ type: 'root', children: paragraphs.map((p) => ({ type: 'paragraph', children: [{ type: 'text', value: p }] })) });
 
-/* ---------- 1. Metaobject definition ---------- */
+/* ---------- 1. Metaobject definitions ---------- */
 
-async function ensureNoteDefinition() {
-  const existing = await gql(`{ metaobjectDefinitionByType(type: "scent_note") { id } }`);
-  if (existing.metaobjectDefinitionByType) return existing.metaobjectDefinitionByType.id;
+const METAOBJECTS = {
+  scent_note: {
+    name: 'Scent note',
+    displayNameKey: 'name',
+    fieldDefinitions: [
+      { key: 'name', name: 'Name', type: 'single_line_text_field', required: true },
+      { key: 'image', name: 'Image', type: 'file_reference', validations: [{ name: 'file_type_options', value: '["Image"]' }] },
+    ],
+  },
+  faq: {
+    name: 'FAQ',
+    displayNameKey: 'question',
+    fieldDefinitions: [
+      { key: 'question', name: 'Question', type: 'single_line_text_field', required: true },
+      { key: 'answer', name: 'Answer', type: 'rich_text_field', required: true },
+    ],
+  },
+  discovery_step: {
+    name: 'Discovery step',
+    displayNameKey: 'title',
+    fieldDefinitions: [
+      { key: 'title', name: 'Title', type: 'single_line_text_field', required: true },
+      { key: 'text', name: 'Text', type: 'multi_line_text_field' },
+      { key: 'icon', name: 'Icon', type: 'single_line_text_field', validations: [{ name: 'choices', value: '["flask","heart","sparkles","gift"]' }] },
+    ],
+  },
+};
+
+async function ensureMetaobjectDefinition(type) {
+  const existing = await gql(`query($t: String!) { metaobjectDefinitionByType(type: $t) { id } }`, { t: type });
+  if (existing.metaobjectDefinitionByType) {
+    console.log(`• metaobject definition ${type} (exists)`);
+    return existing.metaobjectDefinitionByType.id;
+  }
   const { metaobjectDefinitionCreate: r } = await gql(
     `mutation($d: MetaobjectDefinitionCreateInput!) {
       metaobjectDefinitionCreate(definition: $d) { metaobjectDefinition { id } userErrors { field message code } }
     }`,
-    {
-      d: {
-        type: 'scent_note',
-        name: 'Scent note',
-        displayNameKey: 'name',
-        access: { storefront: 'PUBLIC_READ' },
-        fieldDefinitions: [
-          { key: 'name', name: 'Name', type: 'single_line_text_field', required: true },
-          { key: 'image', name: 'Image', type: 'file_reference', validations: [{ name: 'file_type_options', value: '["Image"]' }] },
-        ],
-      },
-    }
+    { d: { type, access: { storefront: 'PUBLIC_READ' }, ...METAOBJECTS[type] } }
   );
-  userErrors(r, 'scent_note definition');
-  console.log('✓ metaobject definition scent_note');
+  userErrors(r, `${type} definition`);
+  console.log(`✓ metaobject definition ${type}`);
   return r.metaobjectDefinition.id;
+}
+
+// Creates or updates an entry by handle and returns its id.
+async function upsertMetaobject(type, handle, fields) {
+  const { metaobjectUpsert: r } = await gql(
+    `mutation($h: MetaobjectHandleInput!, $m: MetaobjectUpsertInput!) {
+      metaobjectUpsert(handle: $h, metaobject: $m) { metaobject { id } userErrors { field message code } }
+    }`,
+    { h: { type, handle }, m: { fields: Object.entries(fields).map(([key, value]) => ({ key, value })) } }
+  );
+  userErrors(r, `${type} ${handle}`);
+  return r.metaobject.id;
 }
 
 /* ---------- 2. Metafield definitions ---------- */
 
-async function ensureMetafieldDefinitions(noteDefinitionId) {
+async function ensureMetafieldDefinitions({ scent_note: noteDefinitionId, faq: faqDefinitionId, discovery_step: stepDefinitionId }) {
   const defs = [
     ['display_name', 'Display name', 'single_line_text_field', 'Short name shown as the H1 and on cards, e.g. "Lamar".'],
     ['badge', 'Badge', 'single_line_text_field', 'Image badge, e.g. Bestseller, New, Exclusive.'],
@@ -124,6 +156,15 @@ async function ensureMetafieldDefinitions(noteDefinitionId) {
     ['set_size', 'Set size', 'number_integer', 'Discovery set: number of fragrances to choose.', null, [{ name: 'min', value: '1' }, { name: 'max', value: '12' }]],
     ['sample_size', 'Sample size', 'single_line_text_field', 'Discovery set: vial size, e.g. 3ml.'],
     ['discovery_collection', 'Discovery fragrances', 'collection_reference', 'Discovery set: fragrances suggested in the pickers.'],
+    ['faqs', 'FAQs', 'list.metaobject_reference', 'Questions for this product. Empty = the section blocks.', faqDefinitionId],
+    ['delivery_note', 'Delivery note', 'single_line_text_field', 'Overrides the "Ships from…" line for this product.'],
+    ['reviews_url', 'Reviews link', 'url', '"Read product reviews" link.'],
+    ['discovery_product', 'Discovery set product', 'product_reference', '"The discovery edit" card link.'],
+    ['steps', 'Discovery steps', 'list.metaobject_reference', 'Discovery set: "how it works" steps.', stepDefinitionId],
+    ['steps_image', 'Discovery steps image', 'file_reference', 'Discovery set: image beside the steps.', null, [{ name: 'file_type_options', value: '["Image"]' }]],
+    ['gallery_eyebrow', 'Gallery caption eyebrow', 'single_line_text_field', 'Discovery set: small line under the gallery.'],
+    ['gallery_caption', 'Gallery caption', 'single_line_text_field', 'Discovery set: serif line under the gallery.'],
+    ['consultation_url', 'Consultation link', 'url', 'Discovery set: "Book a consultation" button.'],
   ];
 
   for (const [key, name, type, description, refId, extra] of defs) {
@@ -252,6 +293,14 @@ async function ensureCollection(handle, title, productIds) {
   return id;
 }
 
+async function setMetafield(ownerId, key, type, value) {
+  const { metafieldsSet: r } = await gql(
+    `mutation($m: [MetafieldsSetInput!]!) { metafieldsSet(metafields: $m) { userErrors { field message code } } }`,
+    { m: [{ ownerId, namespace: 'custom', key, type, value }] }
+  );
+  userErrors(r, `metafield ${key}`);
+}
+
 async function publishAll(ids) {
   const { publications } = await gql(`{ publications(first: 20) { nodes { id name } } }`);
   const online = publications.nodes.find((p) => /online store/i.test(p.name));
@@ -276,9 +325,24 @@ const list = (v) => ({ type: 'list.single_line_text_field', value: json(v) });
 
 (async () => {
   console.log(`Setting up ${STORE} (API ${API_VERSION})\n`);
-  const noteDef = await ensureNoteDefinition();
-  await ensureMetafieldDefinitions(noteDef);
+  const defIds = {};
+  for (const type of Object.keys(METAOBJECTS)) defIds[type] = await ensureMetaobjectDefinition(type);
+  await ensureMetafieldDefinitions(defIds);
   const notes = await ensureNotes();
+
+  const faqRefs = async (prefix, items) => {
+    const ids = [];
+    for (const [i, [question, answer]] of items.entries()) {
+      ids.push(await upsertMetaobject('faq', `${prefix}-${i + 1}`, { question, answer: richText([answer]) }));
+    }
+    console.log(`✓ ${items.length} FAQs for ${prefix}`);
+    return { type: 'list.metaobject_reference', value: json(ids) };
+  };
+  const stepIds = [];
+  for (const [i, step] of data.discovery.steps.entries()) {
+    stepIds.push(await upsertMetaobject('discovery_step', `discovery-step-${i + 1}`, step));
+  }
+  console.log(`✓ ${stepIds.length} discovery steps`);
   const refs = (names) => ({ type: 'list.metaobject_reference', value: json(names.map((n) => notes[n])) });
 
   const related = [];
@@ -327,6 +391,8 @@ const list = (v) => ({ type: 'list.single_line_text_field', value: json(v) });
       size_label: text('100ml'),
       related_products: { type: 'list.product_reference', value: json(related.map((p) => p.id)) },
       house_collection: { type: 'collection_reference', value: kajal },
+      faqs: await faqRefs('lamar', L.faqs),
+      delivery_note: text('Ships from South Yarra next business day'),
     },
   });
   await ensureCollection('kajal', 'Kajal', [lamar.id]);
@@ -346,9 +412,14 @@ const list = (v) => ({ type: 'list.single_line_text_field', value: json(v) });
       set_size: { type: 'number_integer', value: '6' },
       sample_size: text('3ml'),
       discovery_collection: { type: 'collection_reference', value: fragrances },
+      faqs: await faqRefs('discovery-set', D.faqs),
+      steps: { type: 'list.metaobject_reference', value: json(stepIds) },
+      gallery_eyebrow: text('Six scents. Your own story.'),
+      gallery_caption: text('A little collection of possibilities.'),
     },
   });
   const samples = await ensureCollection('samples', 'Samples', [discovery.id]);
+  await setMetafield(lamar.id, 'discovery_product', 'product_reference', discovery.id);
 
   await publishAll([lamar.id, discovery.id, ...related.map((p) => p.id), kajal, fragrances, samples]);
 
