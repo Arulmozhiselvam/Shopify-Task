@@ -1,42 +1,103 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "kh-main-product",
       "settings": {
-        "breadcrumb_collection": "fragrances"
+        "breadcrumb_collection": "fragrances",
+        "breadcrumb_label": "Fragrances",
+        "button_label": "Add to bag",
+        "show_dynamic_checkout": true,
+        "show_installments": true,
+        "delivery_text": "Ships from South Yarra next business day",
+        "sold_out_text": "Contact the boutique for availability",
+        "trust_1_icon": "shield",
+        "trust_1_title": "Authentic",
+        "trust_1_text": "Official stock",
+        "trust_2_icon": "gift",
+        "trust_2_title": "2 free samples",
+        "trust_2_text": "Every order",
+        "trust_3_icon": "truck",
+        "trust_3_title": "Free shipping",
+        "trust_3_text": "Over $200"
       }
     },
     "profile": {
       "type": "kh-scent-profile",
-      "settings": {}
+      "settings": {
+        "heading": "The scent profile",
+        "notes_label": "The notes",
+        "accords_label": "Main accords",
+        "tier_1_label": "Top",
+        "tier_1_time": "First 15 minutes",
+        "tier_2_label": "Heart",
+        "tier_2_time": "1 – 4 hours",
+        "tier_3_label": "Base",
+        "tier_3_time": "The lasting trail"
+      }
     },
     "wear": {
       "type": "kh-how-it-wears",
-      "settings": {}
+      "settings": {
+        "heading": "How it wears",
+        "subheading": "On skin, from the first spray",
+        "label_1": "Opening",
+        "label_2": "Heart",
+        "label_3": "Lasting trail",
+        "phase_1_eyebrow": "First spray",
+        "phase_2_eyebrow": "As it unfolds",
+        "phase_3_eyebrow": "The drydown",
+        "footnote": "Longevity and projection vary with skin and application."
+      }
     },
     "story": {
       "type": "kh-story",
-      "settings": {}
+      "settings": {
+        "eyebrow": "Beyond the bottle",
+        "heading_prefix": "The story of",
+        "read_more": "Read the full story",
+        "link_label": "Explore the fragrance story"
+      }
     },
     "samples": {
       "type": "kh-try-before",
       "settings": {
-        "discovery_product": "discovery-set"
+        "heading": "Try before you fall in love",
+        "sample_text": "Let the fragrance settle on your skin.",
+        "sample_link": "Explore sampling",
+        "discovery_product": "discovery-set",
+        "discovery_title": "The discovery edit",
+        "discovery_text": "Find your favourite, one scent at a time.",
+        "discovery_link_label": "Explore samples",
+        "discovery_link": ""
       }
     },
     "reviews": {
       "type": "kh-reviews-cta",
-      "settings": {}
+      "settings": {
+        "eyebrow": "This fragrance only",
+        "text": "Read customer experiences of [product] at our online boutique.",
+        "link_label": "Read product reviews",
+        "link": ""
+      }
     },
     "related": {
       "type": "kh-related-products",
-      "settings": {}
+      "settings": {
+        "heading": "Others also considered",
+        "limit": 4
+      }
     },
     "faq": {
       "type": "kh-faq",
-      "settings": {
-        "heading": "Your questions, answered"
-      },
       "blocks": {
         "q1": {
           "type": "question",
@@ -80,11 +141,13 @@
         "q3",
         "q4",
         "q5"
-      ]
+      ],
+      "settings": {
+        "heading": "Your questions, answered"
+      }
     },
     "house": {
       "type": "kh-house-band",
-      "settings": {},
       "blocks": {
         "t1": {
           "type": "trust",
@@ -120,7 +183,12 @@
         "t2",
         "t3",
         "t4"
-      ]
+      ],
+      "settings": {
+        "show_band": true,
+        "eyebrow": "Explore the house",
+        "link_label": "Explore the house"
+      }
     }
   },
   "order": [
