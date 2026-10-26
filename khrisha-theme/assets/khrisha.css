@@ -65,7 +65,8 @@
 .kh p, .kh ol, .kh ul, .kh blockquote, .kh fieldset, .kh figure { margin: 0; }
 .kh fieldset { border: 0; padding: 0; min-width: 0; }
 .kh legend { padding: 0; }
-.kh img { max-width: 100%; display: block; }
+/* height: auto lets aspect-ratio win over the height attribute image_tag writes. */
+.kh img { max-width: 100%; height: auto; display: block; }
 /* Resets use :where() so they carry no specificity and component classes always win. */
 :where(.kh) a { color: inherit; text-decoration: none; }
 :where(.kh) :where(button, input, textarea) {
