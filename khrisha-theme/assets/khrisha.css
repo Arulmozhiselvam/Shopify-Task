@@ -367,8 +367,8 @@ kh-product, kh-discovery, kh-card, kh-recommendations { display: block; }
 .kh .sample-item img { width: 100%; aspect-ratio: 1; object-fit: contain; mix-blend-mode: multiply; border-radius: 12px; }
 .kh .sample-item h3 { font-size: 30px; }
 .kh .sample-item p { margin-block: 9px 19px; font-size: 16px; }
-.kh .sample-item a { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; border-bottom: 1px solid currentColor; }
-.kh .sample-item a svg { width: 14px; height: 14px; }
+.kh .sample-item .kh-btn { min-height: 44px; padding: 8px 17px; font-size: 11px; }
+.kh .sample-item .kh-btn svg { width: 14px; height: 14px; }
 
 /* ---------- Reviews CTA ---------- */
 .kh .product-reviews { background: var(--sage); }
@@ -541,7 +541,7 @@ kh-product, kh-discovery, kh-card, kh-recommendations { display: block; }
   .kh .sample-grid { grid-template-columns: 1fr; }
   .kh .sample-item { grid-template-columns: 120px 1fr; gap: 20px; }
   .kh .wear-layout { grid-template-columns: 1fr; gap: 24px; }
-  .kh .trust-row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; }
+  .kh .trust-row { flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
   .kh .profile-col + .main-accords { margin-top: 28px; }
 }
 @media (max-width: 800px) {
@@ -589,6 +589,7 @@ kh-product, kh-discovery, kh-card, kh-recommendations { display: block; }
   .kh .image-arrow { opacity: 1; width: 22px; height: 22px; }
   .kh .product-photo { border-radius: 10px; }
   .kh .question-list summary { font-size: 15px; }
+  .kh .trust-row { gap: 27px; padding-block: 17px; }
   .kh .finder-inner { grid-template-columns: 1fr; gap: 22px; }
   .kh .finder-inner .section-title { font-size: 31px; }
   .kh .finder-inner > a { justify-self: start; }
