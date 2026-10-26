@@ -164,7 +164,10 @@
       assign language_selector = true
     endif
   -%}
-  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if country_selector or language_selector %} header--has-localizations{% endif %}">
+  {%- if section.settings.kh_style -%}
+    {{ 'khrisha-header.css' | asset_url | stylesheet_tag }}
+  {%- endif -%}
+  <header class="header{% if section.settings.kh_style %} header--kh{% endif %} header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if country_selector or language_selector %} header--has-localizations{% endif %}">
     {%- liquid
       assign render_search_left = false
       if section.settings.logo_position == 'top-center' or section.settings.menu == blank or shop.customer_accounts_enabled
@@ -176,7 +179,11 @@
       endif
 
       if render_search_left
-        render 'header-search', input_id: 'Search-In-Modal-1'
+        assign search_label = blank
+        if section.settings.kh_style
+          assign search_label = section.settings.kh_search_label
+        endif
+        render 'header-search', input_id: 'Search-In-Modal-1', label: search_label
       endif
     -%}
 
@@ -300,12 +307,14 @@
       {%- endfor -%}
 
       <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
+        <span class="header__bag-label" aria-hidden="true">Bag</span>
         {% if cart == empty %}
           <span class="svg-wrapper">{{ 'icon-cart-empty.svg' | inline_asset_content }}</span>
         {% else %}
           <span class="svg-wrapper">{{ 'icon-cart.svg' | inline_asset_content }}</span>
         {% endif %}
         <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        <span class="header__bag-count" aria-hidden="true">({{ cart.item_count }})</span>
         {%- if cart != empty -%}
           <div class="cart-count-bubble">
             {%- if cart.item_count < 100 -%}
@@ -504,6 +513,9 @@
   "class": "section-header",
   "max_blocks": 3,
   "settings": [
+    { "type": "header", "content": "Khrisha style" },
+    { "type": "checkbox", "id": "kh_style", "label": "Use Khrisha header style", "info": "Search pill, uppercase menu and Bag (0) cart link. Works best with logo position 'Top center'.", "default": true },
+    { "type": "text", "id": "kh_search_label", "label": "Search pill text", "default": "Search niche fragrances & more scents" },
     {
       "type": "select",
       "id": "logo_position",

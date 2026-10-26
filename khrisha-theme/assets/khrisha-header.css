@@ -1,0 +1,87 @@
+/*
+  Khrisha header style for Dawn's header section (enabled by the "Use Khrisha header style" setting).
+  Search pill on the left, centred logo, "Bag (n)" cart link, uppercase menu.
+*/
+
+.header--kh {
+  --kh-muted: oklch(90.615% .01666 79.35);
+  --kh-ink: oklch(20.463% 0 0);
+  --kh-muted-ink: oklch(50.155% .0193 70.3);
+}
+
+/* ---------- Search pill ---------- */
+.header--kh .header__search--pill .header__icon--search {
+  width: min(310px, 100%);
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--kh-muted);
+  color: var(--kh-ink);
+  justify-content: flex-start;
+}
+.header--kh .header__search--pill .header__icon--search > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.header--kh .header__search--pill .header__icon--search .svg-wrapper { width: 16px; height: 16px; flex-shrink: 0; }
+.header--kh .header__search--pill .header__icon--search .icon { width: 16px; height: 16px; }
+.header--kh .header__search-label {
+  overflow: hidden;
+  font-size: 13px;
+  letter-spacing: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--kh-ink);
+}
+/* Dawn swaps the search icon for a close icon while the modal is open. */
+.header--kh .header__search--pill details[open] .header__search-label { display: none; }
+.header--kh .header__search--pill .header__icon--search:hover .header__search-label { text-decoration: none; }
+
+/* ---------- Bag (n) ---------- */
+.header--kh .header__icon--cart {
+  width: auto;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+.header--kh .header__icon--cart .svg-wrapper { width: 22px; height: 22px; }
+.header--kh .header__icon--cart .icon { width: 22px; height: 22px; }
+.header--kh .header__icon--cart .cart-count-bubble { display: none; }
+.header--kh .header__bag-label,
+.header--kh .header__bag-count { display: inline; font-weight: 500; color: var(--kh-ink); }
+.header:not(.header--kh) .header__bag-label,
+.header:not(.header--kh) .header__bag-count { display: none; }
+
+/* The reference has no account icon. */
+.header--kh .header__icon--account { display: none; }
+
+/* ---------- Menu ---------- */
+.header--kh .header__inline-menu .header__menu-item,
+.header--kh .header__inline-menu summary.header__menu-item {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--kh-ink);
+}
+.header--kh .header__inline-menu .header__active-menu-item { text-decoration: none; }
+.header--kh .header__inline-menu .header__menu-item:hover span { text-decoration: none; color: var(--kh-muted-ink); }
+
+/* ---------- Mobile: icon-only search, "(n)" cart ---------- */
+@media screen and (max-width: 989px) {
+  .header--kh .header__search--pill .header__icon--search {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: transparent;
+    justify-content: center;
+  }
+  .header--kh .header__search-label,
+  .header--kh .header__bag-label { display: none; }
+  .header--kh .header__icon--cart { padding: 0; }
+}
