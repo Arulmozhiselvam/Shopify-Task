@@ -581,7 +581,6 @@ kh-product, kh-discovery, kh-card, kh-recommendations { display: block; }
   .kh .stat-value { font-size: 18px; }
   .kh .story-quote { font-size: 22px; }
   .kh .sample-item { grid-template-columns: 130px 1fr; }
-  .kh .sample-item h3 { font-size: 24px; }
   .kh .product-review-inner { grid-template-columns: 1fr; gap: 20px; }
   .kh .product-info h3 { font-size: 15px; }
   .kh .product-card-size { font-size: 10px; }
