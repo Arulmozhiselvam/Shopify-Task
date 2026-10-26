@@ -1,0 +1,74 @@
+{%- comment -%}
+  "Try before you fall in love": a sample card for this product + a discovery-set card.
+  The sample link points at the product's sample variant (any variant whose title contains
+  "sample"), or at custom.sample_product if set.
+{%- endcomment -%}
+{%- liquid
+  assign mf = product.metafields.custom
+  assign display_name = mf.display_name.value | default: product.title
+  assign sample_url = product.url
+  for variant in product.variants
+    assign vt = variant.title | downcase
+    if vt contains 'sample'
+      assign sample_url = variant.url
+      break
+    endif
+  endfor
+  if mf.sample_product != blank
+    assign sample_url = mf.sample_product.value.url
+  endif
+  assign discovery = section.settings.discovery_product
+-%}
+<div class="kh">
+  <section class="kh-wrap section-space">
+    <div class="section-heading">
+      <h2 class="section-title">{{ section.settings.heading }}</h2>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-item">
+        {%- if product.featured_image -%}
+          {{ product.featured_image | image_url: width: 400 | image_tag: alt: display_name, loading: 'lazy' }}
+        {%- endif -%}
+        <div>
+          <h3>Sample {{ display_name }}</h3>
+          <p>{{ section.settings.sample_text }}</p>
+          <a href="{{ sample_url }}">{{ section.settings.sample_link }}{% render 'kh-icon', name: 'arrow-up-right' %}</a>
+        </div>
+      </div>
+      <div class="sample-item">
+        {%- if section.settings.discovery_image -%}
+          {{ section.settings.discovery_image | image_url: width: 400 | image_tag: alt: section.settings.discovery_title, loading: 'lazy' }}
+        {%- elsif discovery.featured_image -%}
+          {{ discovery.featured_image | image_url: width: 400 | image_tag: alt: section.settings.discovery_title, loading: 'lazy' }}
+        {%- endif -%}
+        <div>
+          <h3>{{ section.settings.discovery_title }}</h3>
+          <p>{{ section.settings.discovery_text }}</p>
+          <a href="{{ discovery.url | default: section.settings.discovery_link | default: routes.all_products_collection_url }}">
+            {{- section.settings.discovery_link_label }}{% render 'kh-icon', name: 'arrow-up-right' -%}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "Khrisha try before",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Try before you fall in love" },
+    { "type": "text", "id": "sample_text", "label": "Sample text", "default": "Let the fragrance settle on your skin." },
+    { "type": "text", "id": "sample_link", "label": "Sample link label", "default": "Explore sampling" },
+    { "type": "product", "id": "discovery_product", "label": "Discovery set product" },
+    { "type": "image_picker", "id": "discovery_image", "label": "Discovery image" },
+    { "type": "text", "id": "discovery_title", "label": "Discovery title", "default": "The discovery edit" },
+    { "type": "text", "id": "discovery_text", "label": "Discovery text", "default": "Find your favourite, one scent at a time." },
+    { "type": "text", "id": "discovery_link_label", "label": "Discovery link label", "default": "Explore samples" },
+    { "type": "url", "id": "discovery_link", "label": "Discovery link (if no product chosen)" }
+  ],
+  "presets": [{ "name": "Khrisha try before" }]
+}
+{% endschema %}

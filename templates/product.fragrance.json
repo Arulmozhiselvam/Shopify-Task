@@ -1,0 +1,137 @@
+{
+  "sections": {
+    "main": {
+      "type": "kh-main-product",
+      "settings": {
+        "breadcrumb_collection": "fragrances"
+      }
+    },
+    "profile": {
+      "type": "kh-scent-profile",
+      "settings": {}
+    },
+    "wear": {
+      "type": "kh-how-it-wears",
+      "settings": {}
+    },
+    "story": {
+      "type": "kh-story",
+      "settings": {}
+    },
+    "samples": {
+      "type": "kh-try-before",
+      "settings": {
+        "discovery_product": "discovery-set"
+      }
+    },
+    "reviews": {
+      "type": "kh-reviews-cta",
+      "settings": {}
+    },
+    "related": {
+      "type": "kh-related-products",
+      "settings": {}
+    },
+    "faq": {
+      "type": "kh-faq",
+      "settings": {
+        "heading": "Your questions, answered"
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "How long does it last?",
+            "answer": "<p>Wear time varies with skin, weather and application. Trying a sample is the best way to discover its performance on you.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Is it office-appropriate?",
+            "answer": "<p>Start with a light application and consider the people and space around you. A sample helps you judge its projection.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Which size should I choose?",
+            "answer": "<p>The 100ml bottle is shown here. Check the online boutique for current sizes and availability.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Can I sample it first?",
+            "answer": "<p>Explore the sampling options for this fragrance at our online boutique, or ask our South Yarra team for guidance.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "How do I know it is authentic?",
+            "answer": "<p>Khrisha Perfumery offers authentic fragrances from independent perfume houses. Contact our team with any questions about a bottle.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ]
+    },
+    "house": {
+      "type": "kh-house-band",
+      "settings": {},
+      "blocks": {
+        "t1": {
+          "type": "trust",
+          "settings": {
+            "icon": "badge",
+            "text": "100% authentic"
+          }
+        },
+        "t2": {
+          "type": "trust",
+          "settings": {
+            "icon": "gift",
+            "text": "2 complimentary samples"
+          }
+        },
+        "t3": {
+          "type": "trust",
+          "settings": {
+            "icon": "truck",
+            "text": "Free shipping over $200"
+          }
+        },
+        "t4": {
+          "type": "trust",
+          "settings": {
+            "icon": "store",
+            "text": "Melbourne boutique"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ]
+    }
+  },
+  "order": [
+    "main",
+    "profile",
+    "wear",
+    "story",
+    "samples",
+    "reviews",
+    "related",
+    "faq",
+    "house"
+  ]
+}

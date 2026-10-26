@@ -1,0 +1,64 @@
+{%- comment -%}
+  "More from <house>" band + trust row. Links to custom.house_collection,
+  falling back to the vendor's collection page.
+{%- endcomment -%}
+{%- liquid
+  assign house = product.metafields.custom.house_collection.value
+  if house != blank
+    assign house_url = house.url
+  else
+    assign house_url = product.vendor | url_for_vendor
+  endif
+-%}
+<div class="kh">
+  {%- if section.settings.show_band -%}
+    <section class="finder-band">
+      <div class="kh-wrap finder-inner">
+        <div>
+          <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+          <h2 class="section-title">More from {{ product.vendor }}</h2>
+        </div>
+        <a class="kh-btn kh-btn--outline shoplink" href="{{ house_url }}">
+          {{- section.settings.link_label }}{% render 'kh-icon', name: 'arrow-up-right' -%}
+        </a>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    <div class="kh-wrap">
+      <div class="trust-row">
+        {%- for block in section.blocks -%}
+          <span class="trust-item" {{ block.shopify_attributes }}>
+            {%- render 'kh-icon', name: block.settings.icon -%}
+            {{ block.settings.text }}
+          </span>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Khrisha house band",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "checkbox", "id": "show_band", "label": "Show 'More from' band", "default": true },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Explore the house" },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "Explore the house" }
+  ],
+  "blocks": [
+    {
+      "type": "trust",
+      "name": "Trust item",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "default": "badge", "options": [{ "value": "badge", "label": "Badge" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "store", "label": "Store" }, { "value": "shield", "label": "Shield" }] },
+        { "type": "text", "id": "text", "label": "Text", "default": "100% authentic" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Khrisha house band" }]
+}
+{% endschema %}

@@ -1,0 +1,24 @@
+{%- comment -%}
+  Three-up trust strip under the buy box. Reads trust_1..3 settings from the calling section.
+  Accepts: section, title_override (optional, replaces item 2 title, e.g. "6 × 3ml")
+{%- endcomment -%}
+<div class="buy-trust-strip">
+  {%- for i in (1..3) -%}
+    {%- liquid
+      assign icon_key = 'trust_' | append: i | append: '_icon'
+      assign title_key = 'trust_' | append: i | append: '_title'
+      assign text_key = 'trust_' | append: i | append: '_text'
+      assign title = section.settings[title_key]
+      if i == 2 and title_override != blank
+        assign title = title_override
+      endif
+    -%}
+    {%- if title != blank -%}
+      <div>
+        {%- render 'kh-icon', name: section.settings[icon_key] -%}
+        <strong>{{ title }}</strong>
+        <span>{{ section.settings[text_key] }}</span>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>

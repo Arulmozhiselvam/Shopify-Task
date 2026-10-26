@@ -1,0 +1,48 @@
+{%- comment -%}
+  "The story of …": custom.tagline (quote), custom.story_intro, custom.story_full (rich text), custom.story_url
+{%- endcomment -%}
+{%- liquid
+  assign mf = product.metafields.custom
+  assign display_name = mf.display_name.value | default: product.title
+-%}
+{%- if mf.story_intro != blank or mf.story_full != blank -%}
+<div class="kh">
+  <section class="story-band section-space">
+    <div class="kh-wrap product-story">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="section-title">{{ section.settings.heading_prefix }} {{ display_name }}</h2>
+      {%- if mf.tagline != blank -%}
+        <blockquote class="story-quote">{{ mf.tagline.value }}</blockquote>
+      {%- endif -%}
+      {%- if mf.story_intro != blank -%}
+        <div class="story-body">{{ mf.story_intro.value | newline_to_br }}</div>
+      {%- endif -%}
+      {%- if mf.story_full != blank -%}
+        <details>
+          <summary>{{ section.settings.read_more }}</summary>
+          <div class="story-body story-more">{{ mf.story_full | metafield_tag }}</div>
+        </details>
+      {%- endif -%}
+      {%- if mf.story_url != blank -%}
+        <a class="story-link" href="{{ mf.story_url.value }}">{{ section.settings.link_label }} ↗</a>
+      {%- endif -%}
+    </div>
+  </section>
+</div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Khrisha story",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Beyond the bottle" },
+    { "type": "text", "id": "heading_prefix", "label": "Heading prefix", "default": "The story of" },
+    { "type": "text", "id": "read_more", "label": "Read more label", "default": "Read the full story" },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "Explore the fragrance story" }
+  ],
+  "presets": [{ "name": "Khrisha story" }],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

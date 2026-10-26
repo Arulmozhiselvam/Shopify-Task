@@ -1,0 +1,43 @@
+{%- comment -%}
+  FAQ accordion. Questions are section blocks so they can be edited per template in the
+  theme editor; each answer can also be connected to a metafield via dynamic sources.
+{%- endcomment -%}
+{%- if section.blocks.size > 0 -%}
+<div class="kh">
+  <section class="guide-band section-space">
+    <div class="kh-wrap guide-inner">
+      <h2 class="section-title">{{ section.settings.heading }}</h2>
+      <div class="question-list">
+        {%- for block in section.blocks -%}
+          <details {{ block.shopify_attributes }}>
+            <summary>{{ block.settings.question }}<span aria-hidden="true">+</span></summary>
+            <div class="answer">{{ block.settings.answer }}</div>
+          </details>
+        {%- endfor -%}
+      </div>
+    </div>
+  </section>
+</div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Khrisha FAQ",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your questions, answered" }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Can I sample it first?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Explore the sampling options for this fragrance at our online boutique.</p>" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Khrisha FAQ", "blocks": [{ "type": "question" }] }]
+}
+{% endschema %}

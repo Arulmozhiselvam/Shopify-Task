@@ -1,0 +1,266 @@
+{%- comment -%}
+  Custom Discovery Set hero with a set builder.
+  - "I'll choose my six": N searchable fragrance pickers (N = custom.set_size, default 6).
+    Suggestions come from custom.discovery_collection (or the section's collection),
+    falling back to Shopify predictive search.
+  - "Curate for me": scent-style chips + free-text preferences.
+  Choices are sent to the cart as line item properties, so they appear on the order.
+{%- endcomment -%}
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign mf = product.metafields.custom
+  assign display_name = mf.display_name.value | default: product.title
+  assign set_size = mf.set_size.value | default: 6
+  assign sample_size = mf.sample_size.value | default: '3ml'
+  assign pool = mf.discovery_collection.value | default: section.settings.pool_collection
+  assign families = section.settings.families | split: ','
+  assign form_id = 'kh-discovery-form-' | append: section.id
+  assign image_media = product.media | where: 'media_type', 'image'
+  assign media_count = image_media.size
+  assign crumb_collection = section.settings.breadcrumb_collection | default: collection | default: product.collections.first
+  assign set_label = set_size | append: ' × ' | append: sample_size
+-%}
+
+<script src="{{ 'khrisha-product.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'khrisha-discovery.js' | asset_url }}" defer="defer"></script>
+
+<div class="kh">
+  <kh-discovery
+    class="kh-wrap discovery-set-page"
+    data-set-size="{{ set_size }}"
+    data-price="{{ current_variant.price }}"
+    data-money-format="{{ shop.money_format | escape }}"
+    data-button-label="{{ section.settings.button_label | escape }}"
+    data-search-url="{{ routes.predictive_search_url }}"
+  >
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span aria-hidden="true">/</span>
+      {%- if crumb_collection != blank -%}
+        <a href="{{ crumb_collection.url }}">{{ section.settings.breadcrumb_label | default: crumb_collection.title }}</a>
+        <span aria-hidden="true">/</span>
+      {%- endif -%}
+      <span aria-current="page">{{ display_name }}</span>
+    </nav>
+
+    <section class="discovery-buy-layout">
+      <div class="discovery-gallery" data-gallery>
+        <div class="discovery-main-photo" data-gallery-stage>
+          {%- for media in image_media -%}
+            {%- liquid
+              assign slide_class = 'detail-slide'
+              if forloop.first
+                assign slide_class = 'detail-slide is-active'
+              endif
+            -%}
+            {{
+              media.preview_image
+              | image_url: width: 1500
+              | image_tag:
+                class: slide_class,
+                alt: media.alt,
+                loading: 'eager',
+                sizes: '(min-width: 801px) 55vw, 100vw',
+                widths: '500, 800, 1100, 1500',
+                data-media-id: media.id
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'detail-slide is-active' }}
+          {%- endfor -%}
+          {%- if media_count > 1 -%}
+            <button type="button" class="gallery-prev" data-gallery-prev aria-label="Previous discovery-set image">{% render 'kh-icon', name: 'chevron-left' %}</button>
+            <button type="button" class="gallery-next" data-gallery-next aria-label="Next discovery-set image">{% render 'kh-icon', name: 'chevron-right' %}</button>
+            <span class="discovery-photo-count"><span data-gallery-current>01</span> / {{ media_count | prepend: '0' | slice: -2, 2 }}</span>
+          {%- endif -%}
+        </div>
+        {%- if media_count > 1 -%}
+          <div class="gallery-thumbs">
+            {%- for media in image_media -%}
+              <button type="button" data-gallery-thumb="{{ forloop.index0 }}" aria-label="View discovery-set image {{ forloop.index }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                {{ media.preview_image | image_url: width: 160, height: 160, crop: 'center' | image_tag: alt: '', loading: 'lazy' }}
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+        <div class="discovery-gallery-caption">
+          <p class="eyebrow">{{ section.settings.caption_eyebrow }}</p>
+          <p>{{ section.settings.caption_text }}</p>
+        </div>
+      </div>
+
+      <div class="discovery-buying buying-box">
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+        <h1>{{ display_name }}</h1>
+        {%- if mf.tagline != blank -%}
+          <p class="discovery-intro">{{ mf.tagline.value }}</p>
+        {%- endif -%}
+        <div class="discovery-price">
+          <strong>{{ current_variant.price | money }}</strong>
+          <span>{{ set_label }} perfume samples</span>
+        </div>
+        <div class="discovery-description">{{ product.description }}</div>
+
+        {%- form 'product', product, id: form_id, class: 'kh-discovery-form', novalidate: 'novalidate' -%}
+          <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+          <div class="discovery-personalise">
+            <p class="eyebrow">{{ section.settings.personalise_label }}</p>
+            <div class="discovery-mode" role="group" aria-label="Personalise your discovery set">
+              <button type="button" data-mode="choose" aria-pressed="true">{% render 'kh-icon', name: 'flask' %}I’ll choose my {{ set_size }}</button>
+              <button type="button" data-mode="curate" aria-pressed="false">{% render 'kh-icon', name: 'sparkles' %}Curate for me</button>
+            </div>
+
+            <fieldset class="discovery-choices" data-panel="choose">
+              <legend>Your {{ set_size }} fragrances <span class="choice-progress" data-progress aria-live="polite">0 / {{ set_size }}</span></legend>
+              {%- for i in (1..set_size) -%}
+                {%- assign input_id = form_id | append: '-choice-' | append: i -%}
+                <div class="fragrance-choice" data-choice>
+                  <label for="{{ input_id }}">
+                    <span>{{ i | prepend: '0' | slice: -2, 2 }}</span>
+                    <input
+                      id="{{ input_id }}"
+                      type="text"
+                      role="combobox"
+                      aria-label="Fragrance {{ i }}"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="{{ input_id }}-options"
+                      autocomplete="off"
+                      placeholder="{{ section.settings.placeholder }}"
+                      maxlength="120"
+                      data-choice-input
+                    >
+                    <button type="button" class="choice-clear" data-choice-clear aria-label="Clear fragrance {{ i }}">{% render 'kh-icon', name: 'x' %}</button>
+                  </label>
+                  <div class="fragrance-suggestions" id="{{ input_id }}-options" role="listbox" aria-label="Suggestions for fragrance {{ i }}" hidden></div>
+                </div>
+              {%- endfor -%}
+            </fieldset>
+
+            <div class="discovery-curation" data-panel="curate" hidden>
+              <div class="discovery-family-options" role="group" aria-label="Preferred scent styles">
+                {%- for family in families -%}
+                  {%- assign family_name = family | strip -%}
+                  {%- assign family_img = 'kh-family-' | append: family_name | downcase | append: '.jpg' -%}
+                  <button type="button" aria-pressed="false" data-family="{{ family_name | escape }}">
+                    <img src="{{ family_img | asset_url }}" alt="" width="36" height="36" loading="lazy">
+                    {{ family_name }}
+                    {% render 'kh-icon', name: 'check' %}
+                  </button>
+                {%- endfor -%}
+              </div>
+              <label class="discovery-preferences">
+                {{ section.settings.preferences_label }}
+                <textarea rows="3" maxlength="500" placeholder="{{ section.settings.preferences_placeholder }}" data-preferences></textarea>
+              </label>
+            </div>
+
+            <div class="discovery-copy-row">
+              <span id="{{ form_id }}-hint" data-hint aria-live="polite"></span>
+              <button type="button" data-copy disabled>{% render 'kh-icon', name: 'copy' %}Copy preferences</button>
+            </div>
+            <p class="discovery-copy-status" role="status" data-copy-status></p>
+          </div>
+
+          <div class="buy-row">
+            <div class="qty">
+              <button type="button" data-qty="-1" aria-label="Decrease quantity">{% render 'kh-icon', name: 'minus' %}</button>
+              <label class="visually-hidden" for="{{ form_id }}-qty">Quantity</label>
+              <input id="{{ form_id }}-qty" type="number" name="quantity" value="1" min="1" inputmode="numeric" data-qty-input>
+              <button type="button" data-qty="1" aria-label="Increase quantity">{% render 'kh-icon', name: 'plus' %}</button>
+            </div>
+            <button type="submit" class="kh-btn kh-btn--primary add-button" data-add-button {% unless current_variant.available %}disabled{% endunless %} {% unless current_variant.available %}data-sold-out{% endunless %}>
+              {%- render 'kh-icon', name: 'bag' -%}
+              <span data-add-label>
+                {%- if current_variant.available -%}
+                  {{ section.settings.button_label }} · {{ current_variant.price | money }}
+                {%- else -%}
+                  Sold out
+                {%- endif -%}
+              </span>
+            </button>
+          </div>
+          <p class="form-error" role="alert" data-form-error></p>
+
+          <div class="express-checkout">
+            {%- if section.settings.show_installments -%}
+              <p class="afterpay-line">
+                or 4 interest-free payments of
+                <strong data-installment>{{ current_variant.price | divided_by: 4.0 | round | money }}</strong>
+                {%- render 'kh-afterpay-logo' -%}
+              </p>
+            {%- endif -%}
+          </div>
+        {%- endform -%}
+
+        {%- render 'kh-trust-strip', section: section, title_override: set_label -%}
+
+        <p class="detail-delivery">
+          {%- if current_variant.available -%}
+            In stock · {{ section.settings.delivery_text }}
+          {%- else -%}
+            <span class="is-out">Sold out</span>
+          {%- endif -%}
+        </p>
+      </div>
+    </section>
+
+    <script type="application/json" data-pool>
+      [
+        {%- if pool != blank -%}
+          {%- assign emitted = false -%}
+          {%- for item in pool.products limit: 250 -%}
+            {%- if item.id == product.id -%}{%- continue -%}{%- endif -%}
+            {%- liquid
+              assign item_name = item.metafields.custom.display_name.value | default: item.title
+              unless item_name contains item.vendor
+                assign item_name = item.vendor | append: ' ' | append: item_name
+              endunless
+            -%}
+            {%- if emitted %},{% endif -%}
+            {{- item_name | json -}}
+            {%- assign emitted = true -%}
+          {%- endfor -%}
+        {%- endif -%}
+      ]
+    </script>
+  </kh-discovery>
+</div>
+
+{% schema %}
+{
+  "name": "Khrisha discovery set",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "header", "content": "Breadcrumb" },
+    { "type": "collection", "id": "breadcrumb_collection", "label": "Breadcrumb collection" },
+    { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label", "default": "Samples" },
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Khrisha Perfumery · personalised for you" },
+    { "type": "text", "id": "caption_eyebrow", "label": "Gallery caption eyebrow", "default": "Six scents. Your own story." },
+    { "type": "text", "id": "caption_text", "label": "Gallery caption", "default": "A little collection of possibilities." },
+    { "type": "header", "content": "Set builder" },
+    { "type": "collection", "id": "pool_collection", "label": "Fragrances to suggest", "info": "Used when the product's custom.discovery_collection metafield is empty. With neither, suggestions come from store search." },
+    { "type": "text", "id": "personalise_label", "label": "Personalise label", "default": "Make it yours" },
+    { "type": "text", "id": "placeholder", "label": "Picker placeholder", "default": "Brand & fragrance name" },
+    { "type": "text", "id": "families", "label": "Scent styles", "info": "Comma separated. Each needs a matching kh-family-<name>.jpg in theme assets.", "default": "Fresh, Floral, Fruity, Woody, Amber, Sweet" },
+    { "type": "text", "id": "preferences_label", "label": "Preferences label", "default": "What do you love?" },
+    { "type": "text", "id": "preferences_placeholder", "label": "Preferences placeholder", "default": "Favourite notes, brands, perfumes you love — or something new you’d like to try." },
+    { "type": "header", "content": "Buy box" },
+    { "type": "text", "id": "button_label", "label": "Add to cart label", "default": "Add discovery set" },
+    { "type": "checkbox", "id": "show_installments", "label": "Show 4 interest-free payments", "default": true },
+    { "type": "text", "id": "delivery_text", "label": "Delivery message", "default": "Ships from South Yarra next business day" },
+    { "type": "header", "content": "Trust strip" },
+    { "type": "select", "id": "trust_1_icon", "label": "Item 1 icon", "default": "shield", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_1_title", "label": "Item 1 title", "default": "Authentic" },
+    { "type": "text", "id": "trust_1_text", "label": "Item 1 text", "default": "Niche fragrances" },
+    { "type": "select", "id": "trust_2_icon", "label": "Item 2 icon", "default": "flask", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_2_title", "label": "Item 2 title", "info": "Replaced by the set size, e.g. 6 × 3ml.", "default": "6 × 3ml" },
+    { "type": "text", "id": "trust_2_text", "label": "Item 2 text", "default": "Chosen for you" },
+    { "type": "select", "id": "trust_3_icon", "label": "Item 3 icon", "default": "truck", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_3_title", "label": "Item 3 title", "default": "Free shipping" },
+    { "type": "text", "id": "trust_3_text", "label": "Item 3 text", "default": "Over $200" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,75 @@
+{%- comment -%}
+  Product card with image carousel, quick add and discover link.
+  Accepts: card_product (product object)
+  Metafields used: custom.display_name, custom.badge, custom.size_label, custom.key_notes
+{%- endcomment -%}
+{%- liquid
+  assign cmf = card_product.metafields.custom
+  assign name = cmf.display_name.value | default: card_product.title
+  assign badge = cmf.badge.value
+  assign badge_handle = badge | handleize
+  assign size = cmf.size_label.value | default: card_product.variants.first.title
+  if size == 'Default Title'
+    assign size = ''
+  endif
+  assign card_variant = card_product.selected_or_first_available_variant
+  assign images = card_product.images
+-%}
+<kh-card>
+  <article aria-label="{{ name | escape }}">
+    <div class="product-photo">
+      {%- if badge != blank -%}
+        <span class="product-tag{% if badge_handle == 'bestseller' %} bestseller{% endif %}">{{ badge }}</span>
+      {%- endif -%}
+      <a aria-label="Discover {{ name | escape }}" class="product-photo-link" href="{{ card_product.url }}">
+        {%- for image in images limit: 4 -%}
+          {%- liquid
+            assign img_class = ''
+            assign img_alt = ''
+            if forloop.first
+              assign img_class = 'shown'
+              assign img_alt = card_product.vendor | append: ' ' | append: name
+            endif
+          -%}
+          {{ image | image_url: width: 600 | image_tag: loading: 'lazy', class: img_class, alt: img_alt, sizes: '(min-width: 901px) 25vw, 50vw', widths: '300, 450, 600' }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'shown' }}
+        {%- endfor -%}
+      </a>
+      {%- if images.size > 1 -%}
+        <div class="product-controls">
+          <button type="button" class="image-arrow" data-card-prev aria-label="Previous image of {{ name | escape }}">{% render 'kh-icon', name: 'chevron-left' %}</button>
+          <div class="image-dots">
+            {%- for image in images limit: 4 -%}
+              <button type="button" data-dot aria-label="{{ name | escape }} image {{ forloop.index }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+            {%- endfor -%}
+          </div>
+          <button type="button" class="image-arrow" data-card-next aria-label="Next image of {{ name | escape }}">{% render 'kh-icon', name: 'chevron-right' %}</button>
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="product-info">
+      <p class="eyebrow">{{ card_product.vendor }}</p>
+      <div class="product-name-row">
+        <h3><a href="{{ card_product.url }}">{{ name }}</a></h3>
+        {%- if size != blank -%}<span class="product-card-size">{{ size }}</span>{%- endif -%}
+      </div>
+      {%- if cmf.key_notes != blank -%}
+        <p class="product-notes">{{ cmf.key_notes.value | join: ' · ' }}</p>
+      {%- endif -%}
+      <div class="product-bottom">
+        <span>{{ card_variant.price | money }}</span>
+        <div class="product-actions">
+          {%- if card_variant.available -%}
+            <button type="button" class="kh-btn kh-btn--primary" data-card-add data-variant-id="{{ card_variant.id }}" aria-label="Add {{ name | escape }} to cart" aria-live="polite">
+              {%- render 'kh-icon', name: 'bag' -%}<span>Add to cart</span>
+            </button>
+          {%- else -%}
+            <button type="button" class="kh-btn kh-btn--primary" disabled><span>Sold out</span></button>
+          {%- endif -%}
+          <a class="kh-btn kh-btn--outline" href="{{ card_product.url }}">Discover {% render 'kh-icon', name: 'arrow-up-right' %}</a>
+        </div>
+      </div>
+    </div>
+  </article>
+</kh-card>
