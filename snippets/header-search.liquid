@@ -3,12 +3,13 @@
 
   Accepts:
   - input_id: {String} Id for the search input element (required)
+  - label: {String} Placeholder text; when set the toggle renders as a search pill (optional)
 
   Usage:
   {% render 'header-search', input_id: 'My-Id'%}
 {% endcomment %}
 
-<details-modal class="header__search">
+<details-modal class="header__search{% if label != blank %} header__search--pill{% endif %}">
   <details>
     <summary
       class="header__icon header__icon--search header__icon--summary link focus-inset modal__toggle"
@@ -19,6 +20,9 @@
         <span class="svg-wrapper">
           {{- 'icon-search.svg' | inline_asset_content -}}
         </span>
+        {%- if label != blank -%}
+          <span class="header__search-label">{{ label }}</span>
+        {%- endif -%}
         <span class="svg-wrapper header__icon-close">
           {{- 'icon-close.svg' | inline_asset_content -}}
         </span>
