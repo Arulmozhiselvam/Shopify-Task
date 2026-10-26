@@ -32,7 +32,7 @@
         <div>
           <h3>Sample {{ display_name }}</h3>
           <p>{{ section.settings.sample_text }}</p>
-          <a href="{{ sample_url }}">{{ section.settings.sample_link }}{% render 'kh-icon', name: 'arrow-up-right' %}</a>
+          <a class="kh-btn kh-btn--outline shoplink" href="{{ sample_url }}">{{ section.settings.sample_link }}{% render 'kh-icon', name: 'arrow-up-right' %}</a>
         </div>
       </div>
       <div class="sample-item">
@@ -40,11 +40,13 @@
           {{ section.settings.discovery_image | image_url: width: 400 | image_tag: alt: section.settings.discovery_title, loading: 'lazy' }}
         {%- elsif discovery.featured_image -%}
           {{ discovery.featured_image | image_url: width: 400 | image_tag: alt: section.settings.discovery_title, loading: 'lazy' }}
+        {%- else -%}
+          <img src="{{ 'kh-discovery-samples.jpg' | asset_url }}" alt="{{ section.settings.discovery_title | escape }}" width="400" height="400" loading="lazy">
         {%- endif -%}
         <div>
           <h3>{{ section.settings.discovery_title }}</h3>
           <p>{{ section.settings.discovery_text }}</p>
-          <a href="{{ discovery.url | default: section.settings.discovery_link | default: routes.all_products_collection_url }}">
+          <a class="kh-btn kh-btn--outline shoplink" href="{{ discovery.url | default: section.settings.discovery_link | default: routes.all_products_collection_url }}">
             {{- section.settings.discovery_link_label }}{% render 'kh-icon', name: 'arrow-up-right' -%}
           </a>
         </div>
