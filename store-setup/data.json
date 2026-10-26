@@ -1,0 +1,212 @@
+{
+  "notes": {
+    "Pineapple": "https://khrisha.rankmybusiness.com.au/assets/pineapple-FATctbUo.jpg",
+    "Red Berries": "https://khrisha.rankmybusiness.com.au/assets/red-berries-CleVfx-K.jpg",
+    "Apple": "https://khrisha.rankmybusiness.com.au/assets/apple-BHLkBxjH.jpg",
+    "Bulgarian Rose": "https://khrisha.rankmybusiness.com.au/assets/bulgarian-rose-DMlPooX2.jpg",
+    "Turkish Rose": "https://khrisha.rankmybusiness.com.au/assets/turkish-rose-D2vimXhs.jpg",
+    "Jasmine Sambac": "https://khrisha.rankmybusiness.com.au/assets/jasmine-BJYh469T.jpg",
+    "Musk": "https://khrisha.rankmybusiness.com.au/assets/musk-Dj3SjJGH.jpg",
+    "Vanilla": "https://khrisha.rankmybusiness.com.au/assets/vanilla-CVHB5qEG.jpg",
+    "Amber": "https://khrisha.rankmybusiness.com.au/assets/amber-Dv0Q58tl.jpg"
+  },
+  "lamar": {
+    "handle": "kajal-lamar-edp-100ml",
+    "title": "Kajal Lamar Eau de Parfum",
+    "display_name": "Lamar",
+    "vendor": "Kajal",
+    "badge": "Bestseller",
+    "images": [
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/ea6325ee-c82e-450c-8971-fc0c6b35d99c/khrisha-lamar0.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/7a548dde-2160-455b-86f0-5835114d1e99/khrisha-lamar1.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/e4e463b6-43af-45bf-a03d-09577d244367/lamar2.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/89f5d57f-d5a4-480e-a0b0-847dd7882b81/lamar3.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/24adfe8e-9913-44be-95e9-d04d08447261/lamar4.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/701b6bff-5aaf-4552-a95d-664d2c267cc6/lamar5.webp"
+    ],
+    "variants": [
+      {
+        "option": "100ml",
+        "price": "349.00",
+        "caption": "Full bottle"
+      },
+      {
+        "option": "Sample 3ml",
+        "price": "20.00",
+        "caption": "Try it first"
+      }
+    ],
+    "tagline": "Liquid gold — mesmerising, fascinating, and utterly enticing.",
+    "families": [
+      "Fruity",
+      "Floral",
+      "Sweet"
+    ],
+    "top_notes": [
+      "Pineapple",
+      "Red Berries",
+      "Apple"
+    ],
+    "heart_notes": [
+      "Bulgarian Rose",
+      "Turkish Rose",
+      "Jasmine Sambac"
+    ],
+    "base_notes": [
+      "Musk",
+      "Vanilla",
+      "Amber"
+    ],
+    "main_accords": [
+      "Fruity | 100",
+      "Sweet | 78",
+      "Fresh | 59",
+      "Rose | 56",
+      "Musky | 54",
+      "Woody | 50",
+      "Tropical | 50",
+      "Powdery | 48",
+      "Amber | 48",
+      "Vanilla | 47"
+    ],
+    "wear_opening": "Sun-drenched and golden",
+    "wear_heart": "A rich double-rose bouquet",
+    "wear_drydown": "Warm woods, vanilla and musk",
+    "longevity": "8–10 hours",
+    "longevity_hours": 9,
+    "projection": "Heavy",
+    "occasions": [
+      "Social events",
+      "Date night",
+      "Casual",
+      "Evening"
+    ],
+    "seasons": [
+      "Spring",
+      "Summer",
+      "Autumn",
+      "Winter"
+    ],
+    "key_notes": [
+      "Pineapple",
+      "Rose",
+      "Vanilla"
+    ],
+    "story_intro": "Lamar is the fragrance that put Kajal on the global map. Created by the legendary Mark Buxton in 2020, Lamar takes its name from the French word \"Lumière\" meaning light, and is known as liquid gold, mesmerising, fascinating, and utterly enticing. It is, without question, the most talked-about and sought-after fragrance in the Kajal portfolio.",
+    "story_full": [
+      "The opening is lush and tropical. Fruity notes, bergamot, coriander, cardamom, and orange create a sun-drenched, golden introduction that feels warm and inviting from the very first spray. There is an immediate sense of luxury and generosity that sets Lamar apart from more restrained compositions.",
+      "The heart is where the magic happens. Bulgarian rose oil, Turkish rose, marigold, magnolia, jasmine, and saffron come together in a rich, multi-layered floral bouquet that is both opulent and addictive. The dual rose combination creates a depth that single-rose fragrances simply cannot match, while saffron adds a golden, spiced warmth that ties everything together.",
+      "The base provides a warm, lasting foundation of ambroxan, cedarwood, vanilla, cashmere wood, and musk. Longevity sits at eight to ten hours with heavy sillage. A word of caution: one spray is usually sufficient. Lamar projects with serious intensity, and over-application can be overwhelming.",
+      "Lamar works across all seasons and suits everything from social events to date nights to casual weekend wear. This is the crowd-pleaser, the compliment-getter, and the gateway into the world of Kajal. Available exclusively in Australia at Khrisha Perfumery."
+    ]
+  },
+  "discovery": {
+    "handle": "discovery-set",
+    "title": "Custom Discovery Set",
+    "display_name": "Custom Discovery Set",
+    "vendor": "Khrisha Perfumery",
+    "price": "70.00",
+    "images": [
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/e7537e97-4988-4c28-ba01-2887ea166dc7/discovery-set-1.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/5bed9867-e101-4373-a54e-b82b6d071388/discovery-set-2.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/7dddc2f2-b257-4caf-8b0c-76b7178c2289/discovery-set-3.webp",
+      "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/fdbb2a81-8550-4eec-ba9c-06481bbfe91e/discovery-set-4.webp"
+    ],
+    "tagline": "Your next favourite fragrance starts here.",
+    "description": "Six niche fragrances, chosen your way. Pick the scents you’re curious about, or let us create a selection around the notes and styles you love."
+  },
+  "related": [
+    {
+      "handle": "oman-luxury-caden",
+      "title": "Oman Luxury Caden Eau de Parfum",
+      "display_name": "Caden",
+      "vendor": "Oman Luxury",
+      "size": "100ml",
+      "price": "295.00",
+      "badge": "New",
+      "key_notes": [
+        "Saffron",
+        "Coffee",
+        "Oud"
+      ],
+      "families": [
+        "Amber",
+        "Woody"
+      ],
+      "images": [
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/f9090223-ca53-4cf8-9983-dcdef55d09b2/khrisha-caden0.jpg",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/ba77d1cf-dfae-4b05-a5ff-942c8e376646/khrisha-caden1.jpg"
+      ]
+    },
+    {
+      "handle": "pantheon-roma-annone",
+      "title": "Pantheon Roma Annone Eau de Parfum",
+      "display_name": "Annone",
+      "vendor": "Pantheon Roma",
+      "size": "100ml",
+      "price": "349.00",
+      "badge": "Exclusive",
+      "key_notes": [
+        "Mango",
+        "Saffron",
+        "Oud"
+      ],
+      "families": [
+        "Fruity",
+        "Amber"
+      ],
+      "images": [
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/2e705ba0-55da-4d54-80f7-03692228f3a4/khrisha-annone0.webp",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/9c77ee12-373d-485e-ba2c-060846897b8d/khrisha-annone1.webp"
+      ]
+    },
+    {
+      "handle": "shl-god-of-fire-edp-50ml",
+      "title": "Stéphane Humbert Lucas God of Fire Eau de Parfum",
+      "display_name": "God of Fire",
+      "vendor": "Stéphane Humbert Lucas",
+      "size": "50ml",
+      "price": "379.00",
+      "badge": "Bestseller",
+      "key_notes": [
+        "Mango",
+        "Ginger",
+        "Amber"
+      ],
+      "families": [
+        "Fruity",
+        "Amber"
+      ],
+      "images": [
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/ab26d787-afbf-4769-8da9-033d64fdc141/khrisha-god-of-fire0.webp",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/cd9cc02e-b17c-496f-ac8e-7771d6d7dc46/khrisha-god-of-fire1.webp",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/ec214cdc-a2ad-4e57-87a9-563c01f3300b/gof2.webp",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/480d3e12-6d3f-473f-9e65-820360f43d28/gof3.webp"
+      ]
+    },
+    {
+      "handle": "gritti-mango-aoud-100ml-edp",
+      "title": "Gritti Mango Aoud Eau de Parfum",
+      "display_name": "Mango Aoud",
+      "vendor": "Gritti",
+      "size": "100ml",
+      "price": "389.00",
+      "badge": "Editor's pick",
+      "key_notes": [
+        "Guava",
+        "Mango",
+        "Oud"
+      ],
+      "families": [
+        "Fruity",
+        "Woody"
+      ],
+      "images": [
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/d06cfb16-f053-43b2-9882-a4bea4214da6/khrisha-mango-aoud0.jpg",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/80e19745-ae07-40c3-8f9f-773a816c3036/khrisha-mango-aoud1.jpg",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/0cfc3250-f450-4e3f-ac18-668225da50fe/mango2.webp",
+        "https://khrisha.rankmybusiness.com.au/__l5e/assets-v1/9dfc0ba1-45cf-46bd-8d1b-e7b74b7b0fd0/mango3.webp"
+      ]
+    }
+  ]
+}

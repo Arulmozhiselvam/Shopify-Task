@@ -1,0 +1,266 @@
+{%- comment -%}
+  Khrisha fragrance hero: breadcrumb, image gallery, variant cards,
+  quantity selector, AJAX add to cart and dynamic checkout.
+  Product data comes from the `custom.*` metafields documented in README.md.
+{%- endcomment -%}
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign mf = product.metafields.custom
+  assign display_name = mf.display_name.value | default: product.title
+  assign families = mf.scent_families.value
+  assign badge = mf.badge.value
+  assign form_id = 'kh-product-form-' | append: section.id
+
+  assign crumb_collection = section.settings.breadcrumb_collection
+  if crumb_collection == blank
+    assign crumb_collection = collection | default: product.collections.first
+  endif
+
+  assign image_media = product.media | where: 'media_type', 'image'
+  assign media_count = image_media.size
+  assign start_index = 0
+  if current_variant.featured_media
+    for media in image_media
+      if media.id == current_variant.featured_media.id
+        assign start_index = forloop.index0
+      endif
+    endfor
+  endif
+
+  assign single_default_variant = false
+  if product.has_only_default_variant
+    assign single_default_variant = true
+  endif
+-%}
+
+<script src="{{ 'khrisha-product.js' | asset_url }}" defer="defer"></script>
+
+<div class="kh">
+  <kh-product
+    class="kh-wrap"
+    data-section="{{ section.id }}"
+    data-url="{{ product.url }}"
+    data-money-format="{{ shop.money_format | escape }}"
+    data-button-label="{{ section.settings.button_label | escape }}"
+    data-delivery-text="{{ section.settings.delivery_text | escape }}"
+    data-sold-out-text="{{ section.settings.sold_out_text | escape }}"
+  >
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span aria-hidden="true">/</span>
+      {%- if crumb_collection != blank -%}
+        <a href="{{ crumb_collection.url }}">{{ section.settings.breadcrumb_label | default: crumb_collection.title }}</a>
+        <span aria-hidden="true">/</span>
+      {%- endif -%}
+      <span aria-current="page">{{ display_name }}</span>
+    </nav>
+
+    <section class="product-detail">
+      <div class="detail-gallery" data-gallery>
+        <div class="detail-photo" data-gallery-stage>
+          {%- for media in image_media -%}
+            {%- liquid
+              assign loading = 'lazy'
+              assign slide_class = 'detail-slide'
+              if forloop.index0 == start_index
+                assign loading = 'eager'
+                assign slide_class = 'detail-slide is-active'
+              endif
+              assign alt = media.alt | default: product.title | append: ', view ' | append: forloop.index
+            -%}
+            {{
+              media.preview_image
+              | image_url: width: 1100
+              | image_tag:
+                class: slide_class,
+                loading: loading,
+                alt: alt,
+                sizes: '(min-width: 1400px) 680px, (min-width: 601px) 50vw, 100vw',
+                widths: '400, 600, 800, 1100',
+                data-media-id: media.id,
+                data-slide: forloop.index0
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'detail-slide is-active' }}
+          {%- endfor -%}
+
+          {%- if badge != blank -%}
+            <span class="product-tag{% assign badge_handle = badge | handleize %}{% if badge_handle == 'bestseller' %} bestseller{% endif %}">{{ badge }}</span>
+          {%- endif -%}
+
+          {%- if media_count > 1 -%}
+            <button type="button" class="gallery-prev" data-gallery-prev aria-label="Previous product image">
+              {%- render 'kh-icon', name: 'chevron-left' -%}
+            </button>
+            <button type="button" class="gallery-next" data-gallery-next aria-label="Next product image">
+              {%- render 'kh-icon', name: 'chevron-right' -%}
+            </button>
+          {%- endif -%}
+        </div>
+
+        {%- if media_count > 1 -%}
+          <div class="gallery-thumbs">
+            {%- for media in image_media -%}
+              <button
+                type="button"
+                data-gallery-thumb="{{ forloop.index0 }}"
+                aria-label="View product image {{ forloop.index }}"
+                aria-pressed="{% if forloop.index0 == start_index %}true{% else %}false{% endif %}"
+              >
+                {{ media.preview_image | image_url: width: 160 | image_tag: alt: '', loading: 'lazy' }}
+              </button>
+            {%- endfor -%}
+          </div>
+          <p class="gallery-count" aria-live="polite">
+            <span data-gallery-current>{{ start_index | plus: 1 }}</span> / {{ media_count }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="buying-box">
+        <p class="eyebrow">{{ product.vendor }}</p>
+        <h1>{{ display_name }}</h1>
+
+        {%- if families != blank -%}
+          <div class="detail-families">
+            {%- for family in families -%}
+              <span class="family-tag scent-family-{{ family | handleize }}"><span aria-hidden="true"></span>{{ family }}</span>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- if mf.tagline != blank -%}
+          <p class="detail-hook">{{ mf.tagline.value }}</p>
+        {%- endif -%}
+
+        {%- form 'product', product, id: form_id, class: 'kh-product-form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-input>
+
+          {%- unless single_default_variant -%}
+            <div class="size-options" role="group" aria-label="{{ product.options.first | default: 'Size' }}">
+              {%- for variant in product.variants -%}
+                {%- assign caption = variant.metafields.custom.caption.value -%}
+                <button
+                  type="button"
+                  class="size-option{% unless variant.available %} is-unavailable{% endunless %}"
+                  data-variant-id="{{ variant.id }}"
+                  aria-pressed="{% if variant.id == current_variant.id %}true{% else %}false{% endif %}"
+                  {% unless variant.available %}
+                    aria-describedby="{{ section.id }}-sold-out"
+                  {% endunless %}
+                >
+                  <span>{{ variant.title }}</span>
+                  <strong>{{ variant.price | money }}</strong>
+                  {%- if variant.available -%}
+                    {%- if caption != blank -%}<small>{{ caption }}</small>{%- endif -%}
+                  {%- else -%}
+                    <small>Sold out</small>
+                  {%- endif -%}
+                </button>
+              {%- endfor -%}
+            </div>
+            <span id="{{ section.id }}-sold-out" class="visually-hidden">Sold out</span>
+          {%- endunless -%}
+
+          <div class="buy-row">
+            <div class="qty">
+              <button type="button" data-qty="-1" aria-label="Decrease quantity">{% render 'kh-icon', name: 'minus' %}</button>
+              <label class="visually-hidden" for="{{ form_id }}-qty">Quantity</label>
+              <input
+                id="{{ form_id }}-qty"
+                type="number"
+                name="quantity"
+                value="1"
+                min="1"
+                {% if current_variant.inventory_management == 'shopify' and current_variant.inventory_policy == 'deny' %}
+                  max="{{ current_variant.inventory_quantity }}"
+                {% endif %}
+                inputmode="numeric"
+                data-qty-input
+              >
+              <button type="button" data-qty="1" aria-label="Increase quantity">{% render 'kh-icon', name: 'plus' %}</button>
+            </div>
+            <button
+              type="submit"
+              name="add"
+              class="kh-btn kh-btn--primary add-button"
+              data-add-button
+              {% unless current_variant.available %}
+                disabled
+              {% endunless %}
+            >
+              {%- render 'kh-icon', name: 'bag' -%}
+              <span data-add-label>
+                {%- if current_variant.available -%}
+                  {{ section.settings.button_label }} · {{ current_variant.price | money }}
+                {%- else -%}
+                  Sold out
+                {%- endif -%}
+              </span>
+            </button>
+          </div>
+          <p class="form-error" role="alert" data-form-error></p>
+
+          <div class="express-checkout">
+            {%- if section.settings.show_dynamic_checkout -%}
+              {{ form | payment_button }}
+            {%- endif -%}
+            {%- if section.settings.show_installments -%}
+              <p class="afterpay-line">
+                or 4 interest-free payments of
+                <strong data-installment>{{ current_variant.price | divided_by: 4.0 | round | money }}</strong>
+                {%- render 'kh-afterpay-logo' -%}
+              </p>
+            {%- endif -%}
+          </div>
+        {%- endform -%}
+
+        {%- render 'kh-trust-strip', section: section -%}
+
+        <p class="detail-delivery" data-availability>
+          {%- if current_variant.available -%}
+            In stock · {{ section.settings.delivery_text }}
+          {%- else -%}
+            <span class="is-out">Sold out</span> · {{ section.settings.sold_out_text }}
+          {%- endif -%}
+        </p>
+      </div>
+    </section>
+
+    <script type="application/json" data-product-json>
+      {
+        "variants": {{ product.variants | json }},
+        "media": [{%- for media in image_media -%}{{ media.id }}{% unless forloop.last %},{% endunless %}{%- endfor -%}]
+      }
+    </script>
+  </kh-product>
+</div>
+
+{% schema %}
+{
+  "name": "Khrisha product hero",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "header", "content": "Breadcrumb" },
+    { "type": "collection", "id": "breadcrumb_collection", "label": "Breadcrumb collection", "info": "Defaults to the collection the shopper came from, then the product's first collection." },
+    { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label", "default": "Fragrances" },
+    { "type": "header", "content": "Buy box" },
+    { "type": "text", "id": "button_label", "label": "Add to cart label", "default": "Add to bag" },
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout button", "default": true },
+    { "type": "checkbox", "id": "show_installments", "label": "Show 4 interest-free payments", "default": true },
+    { "type": "text", "id": "delivery_text", "label": "Delivery message", "default": "Ships from South Yarra next business day" },
+    { "type": "text", "id": "sold_out_text", "label": "Sold-out message", "default": "Contact the boutique for availability" },
+    { "type": "header", "content": "Trust strip" },
+    { "type": "select", "id": "trust_1_icon", "label": "Item 1 icon", "default": "shield", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_1_title", "label": "Item 1 title", "default": "Authentic" },
+    { "type": "text", "id": "trust_1_text", "label": "Item 1 text", "default": "Official stock" },
+    { "type": "select", "id": "trust_2_icon", "label": "Item 2 icon", "default": "gift", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_2_title", "label": "Item 2 title", "default": "2 free samples" },
+    { "type": "text", "id": "trust_2_text", "label": "Item 2 text", "default": "Every order" },
+    { "type": "select", "id": "trust_3_icon", "label": "Item 3 icon", "default": "truck", "options": [{ "value": "shield", "label": "Shield" }, { "value": "gift", "label": "Gift" }, { "value": "truck", "label": "Truck" }, { "value": "flask", "label": "Flask" }, { "value": "store", "label": "Store" }] },
+    { "type": "text", "id": "trust_3_title", "label": "Item 3 title", "default": "Free shipping" },
+    { "type": "text", "id": "trust_3_text", "label": "Item 3 text", "default": "Over $200" }
+  ]
+}
+{% endschema %}

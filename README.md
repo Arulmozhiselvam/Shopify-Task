@@ -1,0 +1,109 @@
+# Khrisha product pages: Shopify assignment
+
+Two product pages recreated in a Shopify theme built on **Dawn**, driven by product metafields:
+
+| Page | Template | Reference |
+|---|---|---|
+| Kajal Lamar EDP 100ml | `templates/product.fragrance.json` | https://khrisha.rankmybusiness.com.au/products/kajal-lamar-edp-100ml |
+| Custom Discovery Set (custom functionality) | `templates/product.discovery-set.json` | https://khrisha.rankmybusiness.com.au/products/discovery-set |
+
+```
+khrisha-theme/     Dawn + custom kh-* sections, snippets and assets (this is what gets pushed)
+store-setup/       Script that creates metafield definitions, metaobjects, products and collections
+store-assets/      Reference images, for manual upload if you don't use the script
+```
+
+## What was built
+
+**Fragrance page (`product.fragrance`)**
+- `kh-main-product`: breadcrumb; image gallery with arrows, thumbnails, counter, swipe and keyboard support; variant cards (100ml / Sample 3ml) that update price, URL, gallery image and stock state; quantity selector; AJAX add to cart that opens Dawn's cart drawer; Shop Pay / dynamic checkout; 4-payment instalment line; trust strip.
+- `kh-scent-profile`: top/heart/base note pyramid (metaobjects with images) and main accord bars.
+- `kh-how-it-wears`: opening → heart → drydown timeline, longevity bar, projection steps, occasions and seasons.
+- `kh-story`: quote, intro and an expandable rich-text story.
+- `kh-try-before`, `kh-reviews-cta`, `kh-faq` (blocks), `kh-house-band` (+ trust row).
+- `kh-related-products`: hand-picked products from a metafield, falling back to Shopify recommendations. Cards have an image carousel and quick add.
+
+**Discovery Set page (`product.discovery-set`), custom functionality**
+- **"I'll choose my six"**: six searchable comboboxes (keyboard accessible, ARIA combobox/listbox). Suggestions come from a collection set in a metafield, falling back to Shopify predictive search. It shows progress (`3 / 6`), clear buttons and duplicate detection.
+- **"Curate for me"**: scent-style chips (Fresh, Floral, Fruity, Woody, Amber, Sweet) plus a free-text "What do you love?" box.
+- Validation: the set can't be added until it's complete, and a hint says what's missing.
+- The choices are sent as **line item properties** (`Fragrance 1` … `Fragrance 6`, or `Preferred styles` / `What I love`), so they show in the cart, checkout and the order in admin.
+- "Copy preferences" button, quantity selector, AJAX add to cart, plus the "how it works" steps, FAQ and help band.
+
+All new CSS lives in `assets/khrisha.css`, scoped under `.kh`, so the rest of Dawn is untouched. The JS is two small vanilla files (`khrisha-product.js`, `khrisha-discovery.js`) built from custom elements, with no dependencies. Every section is editable in the theme editor.
+
+## Metafields
+
+All definitions use the `custom` namespace on **Products** unless noted. Create them in
+**Settings → Custom data**, or run the setup script below.
+
+### Metaobject: `scent_note`
+| Field | Type | |
+|---|---|---|
+| `name` | Single line text | e.g. Bulgarian Rose |
+| `image` | File (image) | Round thumbnail in the note pyramid |
+
+Storefront access must be **on** (the script sets this) so Liquid can read it. Notes are reusable across every fragrance.
+
+### Fragrance page
+| Key | Type | Used for |
+|---|---|---|
+| `display_name` | Single line text | H1 and card title ("Lamar"); falls back to product title |
+| `badge` | Single line text | Image badge ("Bestseller" gets the dark style) |
+| `tagline` | Single line text | Italic hook under the title + story quote |
+| `scent_families` | List: single line text | Coloured family chips (Fresh/Floral/Fruity/Woody/Amber/Sweet) |
+| `top_notes` / `heart_notes` / `base_notes` | List: metaobject (`scent_note`) | Note pyramid + note lines in "How it wears" |
+| `main_accords` | List: single line text | Accord bars. Format `Name \| strength`, e.g. `Fruity \| 100`; strength is optional |
+| `wear_opening` / `wear_heart` / `wear_drydown` | Single line text | The three wear phases |
+| `longevity` | Single line text | "8–10 hours" |
+| `longevity_hours` | Integer | Fills the longevity bar (out of 12) |
+| `projection` | Single line text (choices) | Soft / Moderate / Strong / Heavy / Enormous → 1–4 steps |
+| `occasions` / `seasons` | List: single line text | "Best for" pills |
+| `story_intro` | Multi-line text | Story opening paragraph |
+| `story_full` | Rich text | Behind "Read the full story" |
+| `story_url` | URL | Optional external story link |
+| `related_products` | List: product | "Others also considered" (empty = auto recommendations) |
+| `house_collection` | Collection | "More from Kajal" link (empty = vendor page) |
+| `sample_product` | Product | Optional; otherwise the variant named "Sample…" is used |
+| `key_notes` / `size_label` | List text / text | Used when this product appears on a card |
+
+**Variant metafield** `custom.caption` (Single line text): the small line on each size card ("Full bottle", "Try it first").
+
+### Discovery Set page
+| Key | Type | Used for |
+|---|---|---|
+| `set_size` | Integer (1–12) | Number of pickers (default 6), also shown in "6 × 3ml" |
+| `sample_size` | Single line text | "3ml" |
+| `tagline` | Single line text | Intro line under the title |
+| `discovery_collection` | Collection | Fragrances suggested in the pickers |
+
+Every section hides itself, or falls back to sensible defaults, when its metafields are empty. A product with no fragrance data won't show broken blocks.
+
+## How to configure a product
+
+1. Assign the template: **Products → (product) → Theme template → `fragrance`** or **`discovery-set`**.
+2. Fill in the metafields at the bottom of the product page in admin.
+3. For notes, go to **Content → Metaobjects → Scent note**, add an entry (name + image), then pick it in Top/Heart/Base notes.
+4. Variant captions: open each variant and fill in **Caption**.
+
+## Setup
+
+### 1. Push the theme (unpublished)
+```bash
+npm install -g @shopify/cli@3.84.0     # 3.84 runs on Node 20.10+; latest needs Node 22
+cd khrisha-theme
+shopify theme push --store YOUR-STORE.myshopify.com --unpublished --theme "Khrisha assignment"
+```
+For live reload while developing: `shopify theme dev --store YOUR-STORE.myshopify.com`.
+
+### 2. Create the data (optional script)
+The script needs an Admin API token with `write_products, write_metaobject_definitions, write_metaobjects, write_files, write_publications`. Create an app in the Shopify **Dev Dashboard**, install it on the store, then:
+```bash
+cd store-setup
+SHOPIFY_STORE=YOUR-STORE.myshopify.com SHOPIFY_CLIENT_ID=... SHOPIFY_CLIENT_SECRET=... node setup-store.mjs
+# or: SHOPIFY_ADMIN_TOKEN=shpat_... node setup-store.mjs
+```
+It creates the metaobject definition, 27 product metafield definitions + 1 variant definition, 9 scent notes, both products (with template suffix and metafields filled), 4 related fragrances, and the Kajal / Fragrances / Samples collections. It's safe to re-run.
+
+### 3. Preview
+Online Store → Themes → *Khrisha assignment* → **Preview**, then open `/products/kajal-lamar-edp-100ml` and `/products/discovery-set`.

@@ -1,0 +1,97 @@
+{
+  "sections": {
+    "main": {
+      "type": "kh-discovery-main",
+      "settings": {
+        "breadcrumb_collection": "samples"
+      }
+    },
+    "steps": {
+      "type": "kh-discovery-steps",
+      "settings": {},
+      "blocks": {
+        "s1": {
+          "type": "step",
+          "settings": {
+            "icon": "flask",
+            "title": "Choose your collection",
+            "text": "Name six fragrances you’d like to meet, or share your favourite notes and let our boutique curate your set."
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "icon": "heart",
+            "title": "Discover them on skin",
+            "text": "Each 3ml vial gives you the opportunity to experience the fragrance and how it develops throughout the day."
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Find the one that feels like you",
+            "text": "Explore independent houses, revisit your favourites and take your time before choosing a full bottle."
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "faq": {
+      "type": "kh-faq",
+      "settings": {
+        "heading": "A little more about your set"
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "What is included?",
+            "answer": "<p>Your Custom Discovery Set contains six 3ml perfume samples. The fragrances are personalised to your choices or curated around your preferences.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Can I choose all six fragrances?",
+            "answer": "<p>Yes. Choose “I’ll choose my six” and pick each fragrance above. Your choices are saved with your order.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "What if I’m not sure what to choose?",
+            "answer": "<p>Choose “Curate for me” and share the notes, brands or scent styles you enjoy. Our boutique will build a selection tailored to your taste.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Does the set always contain the same fragrances?",
+            "answer": "<p>No. This is a custom discovery set, rather than a fixed selection. The fragrances depend on your choices and the preferences you share.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4"
+      ]
+    },
+    "help": {
+      "type": "kh-help-band",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "steps",
+    "faq",
+    "help"
+  ]
+}

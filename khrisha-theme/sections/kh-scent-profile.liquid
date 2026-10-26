@@ -1,0 +1,120 @@
+{%- comment -%}
+  "The scent profile": note pyramid + main accords.
+  Notes:   custom.top_notes / custom.heart_notes / custom.base_notes
+           (list of `scent_note` metaobjects with `name` + `image` fields)
+  Accords: custom.main_accords (list of text, "Name | strength 0-100", strength optional)
+{%- endcomment -%}
+{%- liquid
+  assign mf = product.metafields.custom
+  assign tiers = 'top_notes,heart_notes,base_notes' | split: ','
+  assign has_notes = false
+  if mf.top_notes != blank or mf.heart_notes != blank or mf.base_notes != blank
+    assign has_notes = true
+  endif
+  assign accords = mf.main_accords.value
+-%}
+
+{%- if has_notes or accords != blank -%}
+<div class="kh">
+  <section class="profile-band section-space">
+    <div class="kh-wrap">
+      <div class="section-heading">
+        <h2 class="section-title">{{ section.settings.heading }}</h2>
+      </div>
+
+      <div class="profile-columns{% unless has_notes and accords != blank %} is-single{% endunless %}">
+        {%- if has_notes -%}
+          <div class="profile-col">
+            <p class="eyebrow">{{ section.settings.notes_label }}</p>
+            <div class="scent-pyramid">
+              {%- for tier in tiers -%}
+                {%- liquid
+                  assign notes = mf[tier].value
+                  assign n = forloop.index
+                  assign label_key = 'tier_' | append: n | append: '_label'
+                  assign time_key = 'tier_' | append: n | append: '_time'
+                -%}
+                {%- if notes != blank -%}
+                  <div class="pyramid-tier tier-{{ forloop.index0 }}">
+                    <div class="tier-label">
+                      <span class="tier-index">0{{ n }}</span>
+                      <div>
+                        <p class="eyebrow">{{ section.settings[label_key] }}</p>
+                        <p class="tier-time">{{ section.settings[time_key] }}</p>
+                      </div>
+                    </div>
+                    <div class="tier-notes">
+                      {%- for note in notes -%}
+                        {%- liquid
+                          assign note_name = note.name.value | default: note
+                          assign note_image = note.image.value
+                        -%}
+                        <span class="note-bubble">
+                          {%- if note_image != blank -%}
+                            {{ note_image | image_url: width: 128, height: 128, crop: 'center' | image_tag: alt: '', loading: 'lazy', width: 64, height: 64 }}
+                          {%- else -%}
+                            <span class="note-initial" aria-hidden="true">{{ note_name | slice: 0 }}</span>
+                          {%- endif -%}
+                          {{ note_name }}
+                        </span>
+                      {%- endfor -%}
+                    </div>
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- if accords != blank -%}
+          <div class="main-accords">
+            <p class="eyebrow">{{ section.settings.accords_label }}</p>
+            <ol>
+              {%- for entry in accords -%}
+                {%- liquid
+                  assign parts = entry | split: '|'
+                  assign accord_name = parts[0] | strip
+                  assign strength = parts[1] | strip | plus: 0
+                  if strength <= 0
+                    # No strength given: step down evenly from 100%.
+                    assign strength = forloop.index0 | times: 6 | minus: 100 | abs
+                  endif
+                  if strength > 100
+                    assign strength = 100
+                  endif
+                  assign accord_index = forloop.index0 | modulo: 10
+                -%}
+                <li class="accord-{{ accord_index }}" style="width: {{ strength }}%">
+                  <span role="meter" aria-label="{{ accord_name }} relative prominence" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ strength }}">{{ accord_name }}</span>
+                </li>
+              {%- endfor -%}
+            </ol>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+</div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Khrisha scent profile",
+  "tag": "section",
+  "class": "kh-section",
+  "settings": [
+    { "type": "paragraph", "content": "Content comes from the product's custom.top_notes, custom.heart_notes, custom.base_notes and custom.main_accords metafields. The section hides itself when they are empty." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "The scent profile" },
+    { "type": "text", "id": "notes_label", "label": "Notes label", "default": "The notes" },
+    { "type": "text", "id": "accords_label", "label": "Accords label", "default": "Main accords" },
+    { "type": "text", "id": "tier_1_label", "label": "Tier 1 label", "default": "Top" },
+    { "type": "text", "id": "tier_1_time", "label": "Tier 1 timing", "default": "First 15 minutes" },
+    { "type": "text", "id": "tier_2_label", "label": "Tier 2 label", "default": "Heart" },
+    { "type": "text", "id": "tier_2_time", "label": "Tier 2 timing", "default": "1 – 4 hours" },
+    { "type": "text", "id": "tier_3_label", "label": "Tier 3 label", "default": "Base" },
+    { "type": "text", "id": "tier_3_time", "label": "Tier 3 timing", "default": "The lasting trail" }
+  ],
+  "presets": [{ "name": "Khrisha scent profile" }],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}
