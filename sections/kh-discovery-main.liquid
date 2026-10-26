@@ -19,6 +19,8 @@
   assign media_count = image_media.size
   assign crumb_collection = section.settings.breadcrumb_collection | default: collection | default: product.collections.first
   assign set_label = set_size | append: ' × ' | append: sample_size
+  assign number_words = 'zero,one,two,three,four,five,six,seven,eight,nine,ten,eleven,twelve' | split: ','
+  assign set_word = number_words[set_size] | default: set_size
   assign caption_eyebrow = mf.gallery_eyebrow.value | default: section.settings.caption_eyebrow
   assign caption_text = mf.gallery_caption.value | default: section.settings.caption_text
   assign delivery_text = mf.delivery_note.value | default: section.settings.delivery_text
@@ -109,12 +111,12 @@
           <div class="discovery-personalise">
             <p class="eyebrow">{{ section.settings.personalise_label }}</p>
             <div class="discovery-mode" role="group" aria-label="Personalise your discovery set">
-              <button type="button" data-mode="choose" aria-pressed="true">{% render 'kh-icon', name: 'flask' %}I’ll choose my {{ set_size }}</button>
+              <button type="button" data-mode="choose" aria-pressed="true">{% render 'kh-icon', name: 'flask' %}I’ll choose my {{ set_word }}</button>
               <button type="button" data-mode="curate" aria-pressed="false">{% render 'kh-icon', name: 'sparkles' %}Curate for me</button>
             </div>
 
             <fieldset class="discovery-choices" data-panel="choose">
-              <legend>Your {{ set_size }} fragrances <span class="choice-progress" data-progress aria-live="polite">0 / {{ set_size }}</span></legend>
+              <legend>Your {{ set_word }} fragrances <span class="choice-progress" data-progress aria-live="polite">0 / {{ set_size }}</span></legend>
               {%- for i in (1..set_size) -%}
                 {%- assign input_id = form_id | append: '-choice-' | append: i -%}
                 <div class="fragrance-choice" data-choice>
