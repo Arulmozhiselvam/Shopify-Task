@@ -7,11 +7,34 @@ Two product pages recreated in a Shopify theme built on **Dawn**, driven by prod
 | Kajal Lamar EDP 100ml | `templates/product.fragrance.json` | https://khrisha.rankmybusiness.com.au/products/kajal-lamar-edp-100ml |
 | Custom Discovery Set (custom functionality) | `templates/product.discovery-set.json` | https://khrisha.rankmybusiness.com.au/products/discovery-set |
 
+## Live preview
+
+| | |
+|---|---|
+| Store | https://djz1ju-ae.myshopify.com (password: `bowfle`) |
+| Fragrance page | https://djz1ju-ae.myshopify.com/products/lamar |
+| Discovery Set page | https://djz1ju-ae.myshopify.com/products/custom-discovery-set |
+| Theme | `Shopify-Task/shopify-theme`, connected to the `shopify-theme` branch of this repo through Shopify's GitHub integration |
+
+**Quick test:** on Lamar, switch between *100ml* and *Sample 3ml* (price, URL and button update), change the quantity, then add to bag (the cart drawer opens). On the Discovery Set, try adding before choosing (it's blocked with a hint), type in a picker to get suggestions, enter the same fragrance twice (duplicate warning), complete all six and add. The cart line shows `Fragrance 1…6`. Then switch to *Curate for me*, pick styles, add notes and add again.
+
+## Screenshots
+
+| | Desktop | Mobile |
+|---|---|---|
+| Fragrance | [full page](screenshots/lamar-desktop-full.png) · [first screen](screenshots/lamar-desktop-hero.png) | [full page](screenshots/lamar-mobile-full.png) · [first screen](screenshots/lamar-mobile-hero.png) |
+| Discovery Set | [full page](screenshots/discovery-set-desktop-full.png) · [first screen](screenshots/discovery-set-desktop-hero.png) | [full page](screenshots/discovery-set-mobile-full.png) · [first screen](screenshots/discovery-set-mobile-hero.png) |
+
+## Repository layout
+
 ```
-khrisha-theme/     Dawn + custom kh-* sections, snippets and assets (this is what gets pushed)
+khrisha-theme/     Dawn + custom kh-* sections, snippets and assets
 store-setup/       Script that creates metafield definitions, metaobjects, products and collections
 store-assets/      Reference images, for manual upload if you don't use the script
+screenshots/       Desktop and mobile screenshots of both pages
 ```
+
+Branches: `main` holds everything above. `shopify-theme` holds only the theme at its root, because Shopify's GitHub integration needs that layout.
 
 ## What was built
 
@@ -30,7 +53,9 @@ store-assets/      Reference images, for manual upload if you don't use the scri
 - The choices are sent as **line item properties** (`Fragrance 1` … `Fragrance 6`, or `Preferred styles` / `What I love`), so they show in the cart, checkout and the order in admin.
 - "Copy preferences" button, quantity selector, AJAX add to cart, plus the "how it works" steps, FAQ and help band.
 
-All new CSS lives in `assets/khrisha.css`, scoped under `.kh`, so the rest of Dawn is untouched. The JS is two small vanilla files (`khrisha-product.js`, `khrisha-discovery.js`) built from custom elements, with no dependencies. Every section is editable in the theme editor.
+**Header:** Dawn's header gets an optional "Khrisha style" (on by default): a search pill, a centred logo, a "Bag (n)" cart link and an uppercase menu, as on the reference.
+
+All new CSS lives in `assets/khrisha.css` and `assets/khrisha-header.css`, scoped under `.kh` / `.header--kh`, so the rest of Dawn is untouched. The JS is two small vanilla files (`khrisha-product.js`, `khrisha-discovery.js`) built from custom elements, with no dependencies. Every section is editable in the theme editor.
 
 ## Metafields
 
@@ -75,7 +100,7 @@ Storefront access must be **on** for all three metaobjects (the script sets this
 | `story_intro` | Multi-line text | Story opening paragraph |
 | `story_full` | Rich text | Behind "Read the full story" |
 | `story_url` | URL | Optional external story link |
-| `related_products` | List: product | "Others also considered" (empty = auto recommendations) |
+| `related_products` | List: product | "Others also considered" (empty = auto recommendations). Also reads `custom.custom_related_product`, a list of `custom_product` metaobjects whose `name` field holds products |
 | `house_collection` | Collection | "More from Kajal" link (empty = vendor page) |
 | `sample_product` | Product | Optional; otherwise the variant named "Sample…" is used |
 | `key_notes` / `size_label` | List text / text | Used when this product appears on a card |
@@ -101,7 +126,7 @@ Storefront access must be **on** for all three metaobjects (the script sets this
 | `consultation_url` | URL | "Book a consultation" button |
 | `delivery_note` | Single line text | Delivery line override |
 
-**Every section reads its content from metafields.** Where a section also has a theme-editor setting (headings, FAQ blocks, step blocks, links), the metafield wins when it's filled and the setting is the fallback. Sections with no data hide themselves, so a product with missing fields never shows empty blocks. Store-wide labels (section headings, trust strip) stay as section settings. Any of them can also be connected to a metafield in the theme editor with **Connect dynamic source**.
+**How content is resolved:** for every product-specific value, the section reads the **metafield first**. When the metafield is empty, it uses the section's **theme-editor setting**, which is pre-filled with the reference Lamar / Discovery Set content. So the page is complete out of the box, and each new product only needs its own metafields to get its own content, with no code changes. Store-wide labels (section headings, "Top / Heart / Base", trust strip) are section settings only, because they're the same on every product.
 
 ## How to configure a product
 
