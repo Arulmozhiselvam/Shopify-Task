@@ -23,6 +23,19 @@
       endif
     endfor
   endif
+
+  # Ignore a list that only contains this product, so recommendations take over.
+  if picked != blank
+    assign other_count = 0
+    for rel in picked
+      if rel.id != product.id
+        assign other_count = other_count | plus: 1
+      endif
+    endfor
+    if other_count == 0
+      assign picked = nil
+    endif
+  endif
 -%}
 <div class="kh">
   {%- if recommendations.performed? -%}
@@ -40,8 +53,13 @@
       </div>
       {%- if picked != blank -%}
         <div class="related-grid">
-          {%- for rel in picked limit: limit -%}
+          {%- assign shown = 0 -%}
+          {%- for rel in picked -%}
+            {%- comment -%} A product never recommends itself. {%- endcomment -%}
+            {%- if rel.id == product.id -%}{%- continue -%}{%- endif -%}
+            {%- if shown >= limit -%}{%- break -%}{%- endif -%}
             {%- render 'kh-product-card', card_product: rel -%}
+            {%- assign shown = shown | plus: 1 -%}
           {%- endfor -%}
         </div>
       {%- else -%}
