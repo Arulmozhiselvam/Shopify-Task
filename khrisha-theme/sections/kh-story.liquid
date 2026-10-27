@@ -1,35 +1,45 @@
 {%- comment -%}
-  "The story of …": custom.tagline (quote), custom.story_intro, custom.story_full (rich text), custom.story_url
+  "The story of …". Each value comes from a product metafield when filled,
+  otherwise from this section's settings:
+    custom.tagline → quote, custom.story_intro → intro,
+    custom.story_full → "Read the full story", custom.story_url → link
 {%- endcomment -%}
 {%- liquid
   assign mf = product.metafields.custom
   assign display_name = mf.display_name.value | default: product.title
+  assign quote = mf.tagline.value | default: section.settings.quote
+  assign intro = mf.story_intro.value | default: section.settings.intro
+  assign story_link = mf.story_url.value | default: section.settings.link
 -%}
-{%- if mf.story_intro != blank or mf.story_full != blank -%}
 <div class="kh">
   <section class="story-band section-space">
     <div class="kh-wrap product-story">
       <p class="eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="section-title">{{ section.settings.heading_prefix }} {{ display_name }}</h2>
-      {%- if mf.tagline != blank -%}
-        <blockquote class="story-quote">{{ mf.tagline.value }}</blockquote>
+      {%- if quote != blank -%}
+        <blockquote class="story-quote">{{ quote }}</blockquote>
       {%- endif -%}
-      {%- if mf.story_intro != blank -%}
-        <div class="story-body">{{ mf.story_intro.value | newline_to_br }}</div>
+      {%- if intro != blank -%}
+        <div class="story-body">{{ intro | newline_to_br }}</div>
       {%- endif -%}
-      {%- if mf.story_full != blank -%}
+      {%- if mf.story_full != blank or section.settings.full_story != blank -%}
         <details>
           <summary>{{ section.settings.read_more }}</summary>
-          <div class="story-body story-more">{{ mf.story_full | metafield_tag }}</div>
+          <div class="story-body story-more">
+            {%- if mf.story_full != blank -%}
+              {{ mf.story_full | metafield_tag }}
+            {%- else -%}
+              {{ section.settings.full_story }}
+            {%- endif -%}
+          </div>
         </details>
       {%- endif -%}
-      {%- if mf.story_url != blank -%}
-        <a class="story-link" href="{{ mf.story_url.value }}">{{ section.settings.link_label }} ↗</a>
+      {%- if story_link != blank -%}
+        <a class="story-link" href="{{ story_link }}">{{ section.settings.link_label }} ↗</a>
       {%- endif -%}
     </div>
   </section>
 </div>
-{%- endif -%}
 
 {% schema %}
 {
@@ -37,9 +47,14 @@
   "tag": "section",
   "class": "kh-section",
   "settings": [
+    { "type": "paragraph", "content": "Quote, intro, full story and link are replaced by the product's custom.tagline, custom.story_intro, custom.story_full and custom.story_url metafields when those are filled." },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Beyond the bottle" },
     { "type": "text", "id": "heading_prefix", "label": "Heading prefix", "default": "The story of" },
+    { "type": "text", "id": "quote", "label": "Quote", "default": "Liquid gold — mesmerising, fascinating, and utterly enticing." },
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "Lamar is the fragrance that put Kajal on the global map. Created by the legendary Mark Buxton in 2020, Lamar takes its name from the French word \"Lumière\" meaning light, and is known as liquid gold, mesmerising, fascinating, and utterly enticing. It is, without question, the most talked-about and sought-after fragrance in the Kajal portfolio." },
     { "type": "text", "id": "read_more", "label": "Read more label", "default": "Read the full story" },
+    { "type": "richtext", "id": "full_story", "label": "Full story", "default": "<p>The opening is lush and tropical. Fruity notes, bergamot, coriander, cardamom, and orange create a sun-drenched, golden introduction that feels warm and inviting from the very first spray. There is an immediate sense of luxury and generosity that sets Lamar apart from more restrained compositions.</p><p>The heart is where the magic happens. Bulgarian rose oil, Turkish rose, marigold, magnolia, jasmine, and saffron come together in a rich, multi-layered floral bouquet that is both opulent and addictive. The dual rose combination creates a depth that single-rose fragrances simply cannot match, while saffron adds a golden, spiced warmth that ties everything together.</p><p>The base provides a warm, lasting foundation of ambroxan, cedarwood, vanilla, cashmere wood, and musk. Longevity sits at eight to ten hours with heavy sillage. A word of caution: one spray is usually sufficient. Lamar projects with serious intensity, and over-application can be overwhelming.</p><p>Lamar works across all seasons and suits everything from social events to date nights to casual weekend wear. This is the crowd-pleaser, the compliment-getter, and the gateway into the world of Kajal. Available exclusively in Australia at Khrisha Perfumery.</p>" },
+    { "type": "url", "id": "link", "label": "Story link" },
     { "type": "text", "id": "link_label", "label": "Link label", "default": "Explore the fragrance story" }
   ],
   "presets": [{ "name": "Khrisha story" }],
