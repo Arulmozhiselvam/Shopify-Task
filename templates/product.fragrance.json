@@ -33,7 +33,7 @@
     "profile": {
       "type": "kh-scent-profile",
       "settings": {
-        "heading": "The scent profile",
+        "heading": "{{ product.metafields.custom.top_notes | metafield_text: field: 'name' }}",
         "notes_label": "The notes",
         "accords_label": "Main accords",
         "tier_1_label": "Top",
