@@ -1,11 +1,28 @@
 {%- comment -%}
-  "Others also considered". Uses the hand-picked custom.related_products metafield;
-  when that is empty it lazy-loads Shopify's product recommendations through this
-  same section (the Section Rendering API sets `recommendations`).
+  "Others also considered". Hand-picked products come from either:
+    - custom.related_products: list of products, or
+    - custom.custom_related_product: list of `custom_product` metaobjects whose
+      `name` field holds one or more products.
+  When neither is filled it lazy-loads Shopify's product recommendations through
+  this same section (the Section Rendering API sets `recommendations`).
 {%- endcomment -%}
 {%- liquid
   assign limit = section.settings.limit
   assign picked = product.metafields.custom.related_products.value
+  if picked == blank
+    assign entries = product.metafields.custom.custom_related_product.value
+    for entry in entries
+      assign entry_products = entry.name.value
+      if entry_products == blank
+        continue
+      endif
+      if picked == blank
+        assign picked = entry_products
+      else
+        assign picked = picked | concat: entry_products
+      endif
+    endfor
+  endif
 -%}
 <div class="kh">
   {%- if recommendations.performed? -%}
