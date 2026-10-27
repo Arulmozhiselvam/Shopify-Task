@@ -85,6 +85,9 @@
   text-transform: uppercase;
   color: var(--kh-ink);
 }
+/* Dropdown items: leave room for Dawn's absolutely positioned caret. */
+.header--kh .header__inline-menu summary.header__menu-item { padding-right: 28px; }
+.header--kh .header__inline-menu summary.header__menu-item .icon-caret { right: 12px; }
 .header--kh .header__inline-menu .header__active-menu-item { text-decoration: none; }
 .header--kh .header__inline-menu .header__menu-item:hover span { text-decoration: none; color: var(--kh-muted-ink); }
 
