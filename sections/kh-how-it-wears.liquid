@@ -1,20 +1,26 @@
 {%- comment -%}
   "How it wears": three-phase timeline + performance meters.
-  Metafields: custom.wear_opening, custom.wear_heart, custom.wear_drydown,
-              custom.longevity, custom.longevity_hours, custom.projection,
-              custom.occasions, custom.seasons
-  The note lines under each phase reuse custom.top_notes / heart_notes / base_notes.
+  Each value comes from a product metafield when it is filled, otherwise from this
+  section's settings (editable in the theme editor):
+    custom.wear_opening / wear_heart / wear_drydown   → phase descriptions
+    custom.top_notes / heart_notes / base_notes       → note line under each phase
+    custom.longevity, custom.longevity_hours          → longevity meter
+    custom.projection                                 → projection steps
+    custom.occasions, custom.seasons                  → "Best for" pills
 {%- endcomment -%}
 {%- liquid
   assign mf = product.metafields.custom
-  assign phases = 'wear_opening,wear_heart,wear_drydown' | split: ','
-  assign note_lists = 'top_notes,heart_notes,base_notes' | split: ','
-  assign has_phases = false
-  if mf.wear_opening != blank or mf.wear_heart != blank or mf.wear_drydown != blank
-    assign has_phases = true
+  assign phase_keys = 'wear_opening,wear_heart,wear_drydown' | split: ','
+  assign note_keys = 'top_notes,heart_notes,base_notes' | split: ','
+
+  assign longevity = mf.longevity.value | default: section.settings.longevity
+  assign hours = mf.longevity_hours.value | default: section.settings.longevity_hours
+  assign longevity_pct = hours | times: 100 | divided_by: 12
+  if longevity_pct > 100
+    assign longevity_pct = 100
   endif
 
-  assign projection = mf.projection.value
+  assign projection = mf.projection.value | default: section.settings.projection
   assign projection_handle = projection | handleize
   case projection_handle
     when 'intimate', 'soft', 'light'
@@ -29,14 +35,16 @@
       assign projection_step = 0
   endcase
 
-  assign hours = mf.longevity_hours.value | default: 0
-  assign longevity_pct = hours | times: 100 | divided_by: 12
-  if longevity_pct > 100
-    assign longevity_pct = 100
+  assign occasions = mf.occasions.value
+  if occasions == blank
+    assign occasions = section.settings.occasions | split: ','
+  endif
+  assign seasons = mf.seasons.value
+  if seasons == blank
+    assign seasons = section.settings.seasons | split: ','
   endif
 -%}
 
-{%- if has_phases or mf.longevity != blank or projection != blank -%}
 <div class="kh">
   <section class="kh-wrap section-space wear-section">
     <div class="section-heading">
@@ -49,45 +57,48 @@
     </div>
 
     <div class="wear-layout">
-      {%- if has_phases -%}
-        <div class="wear-timeline">
-          <div class="wear-phase-bar" aria-hidden="true"><span></span><span></span><span></span></div>
-          <div class="wear-phase-labels" aria-hidden="true">
-            <span>{{ section.settings.label_1 }}</span>
-            <span>{{ section.settings.label_2 }}</span>
-            <span>{{ section.settings.label_3 }}</span>
-          </div>
-          <ol class="wear-phases">
-            {%- for phase in phases -%}
-              {%- liquid
-                assign i = forloop.index
-                assign eyebrow_key = 'phase_' | append: i | append: '_eyebrow'
-                assign list_key = note_lists[forloop.index0]
-                assign notes = mf[list_key].value
-              -%}
-              <li class="wear-phase phase-{{ forloop.index0 }}">
-                <p class="eyebrow">{{ section.settings[eyebrow_key] }}</p>
-                <p class="journey-text">{{ mf[phase].value }}</p>
-                {%- if notes != blank -%}
-                  <p class="wear-phase-notes">
-                    {%- for note in notes -%}
-                      {{- note.name.value | default: note -}}
-                      {%- unless forloop.last %} · {% endunless -%}
-                    {%- endfor -%}
-                  </p>
-                {%- endif -%}
-              </li>
-            {%- endfor -%}
-          </ol>
+      <div class="wear-timeline">
+        <div class="wear-phase-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="wear-phase-labels" aria-hidden="true">
+          <span>{{ section.settings.label_1 }}</span>
+          <span>{{ section.settings.label_2 }}</span>
+          <span>{{ section.settings.label_3 }}</span>
         </div>
-      {%- endif -%}
+        <ol class="wear-phases">
+          {%- for phase_key in phase_keys -%}
+            {%- liquid
+              assign i = forloop.index
+              assign eyebrow_key = 'phase_' | append: i | append: '_eyebrow'
+              assign text_key = 'phase_' | append: i | append: '_text'
+              assign notes_key = 'phase_' | append: i | append: '_notes'
+              assign phase_text = mf[phase_key].value | default: section.settings[text_key]
+              assign note_key = note_keys[forloop.index0]
+              assign note_list = mf[note_key].value
+            -%}
+            <li class="wear-phase phase-{{ forloop.index0 }}">
+              <p class="eyebrow">{{ section.settings[eyebrow_key] }}</p>
+              <p class="journey-text">{{ phase_text }}</p>
+              <p class="wear-phase-notes">
+                {%- if note_list != blank -%}
+                  {%- for note in note_list -%}
+                    {{- note.name.value | default: note -}}
+                    {%- unless forloop.last %} · {% endunless -%}
+                  {%- endfor -%}
+                {%- else -%}
+                  {{- section.settings[notes_key] -}}
+                {%- endif -%}
+              </p>
+            </li>
+          {%- endfor -%}
+        </ol>
+      </div>
 
       <div class="wear-performance">
         <div class="wear-meters">
-          {%- if mf.longevity != blank -%}
+          {%- if longevity != blank -%}
             <div class="wear-meter">
               <p class="eyebrow">Longevity</p>
-              <p class="stat-value">{{ mf.longevity.value }}</p>
+              <p class="stat-value">{{ longevity }}</p>
               {%- if hours > 0 -%}
                 <div class="stat-bar" role="img" aria-label="About {{ hours }} of 12 hours"><span style="width: {{ longevity_pct }}%"></span></div>
               {%- endif -%}
@@ -108,12 +119,18 @@
           {%- endif -%}
         </div>
 
-        {%- if mf.occasions != blank or mf.seasons != blank -%}
+        {%- if occasions != blank or seasons != blank -%}
           <div class="wear-occasions">
             <p class="eyebrow">Best for</p>
             <div class="occasion-row">
-              {%- for occasion in mf.occasions.value -%}<span>{{ occasion }}</span>{%- endfor -%}
-              {%- for season in mf.seasons.value -%}<span class="wear-season">{{ season }}</span>{%- endfor -%}
+              {%- for occasion in occasions -%}
+                {%- assign occasion = occasion | strip -%}
+                {%- if occasion != blank -%}<span>{{ occasion }}</span>{%- endif -%}
+              {%- endfor -%}
+              {%- for season in seasons -%}
+                {%- assign season = season | strip -%}
+                {%- if season != blank -%}<span class="wear-season">{{ season }}</span>{%- endif -%}
+              {%- endfor -%}
             </div>
           </div>
         {%- endif -%}
@@ -125,7 +142,6 @@
     {%- endif -%}
   </section>
 </div>
-{%- endif -%}
 
 {% schema %}
 {
@@ -133,15 +149,33 @@
   "tag": "section",
   "class": "kh-section",
   "settings": [
-    { "type": "paragraph", "content": "Content comes from the product's custom.wear_*, custom.longevity*, custom.projection, custom.occasions and custom.seasons metafields." },
+    { "type": "paragraph", "content": "Each value below is replaced by the product's metafield when that metafield is filled (custom.wear_*, custom.longevity*, custom.projection, custom.occasions, custom.seasons, custom.top/heart/base_notes)." },
     { "type": "text", "id": "heading", "label": "Heading", "default": "How it wears" },
     { "type": "text", "id": "subheading", "label": "Subheading", "default": "On skin, from the first spray" },
     { "type": "text", "id": "label_1", "label": "Bar label 1", "default": "Opening" },
     { "type": "text", "id": "label_2", "label": "Bar label 2", "default": "Heart" },
     { "type": "text", "id": "label_3", "label": "Bar label 3", "default": "Lasting trail" },
-    { "type": "text", "id": "phase_1_eyebrow", "label": "Phase 1 eyebrow", "default": "First spray" },
-    { "type": "text", "id": "phase_2_eyebrow", "label": "Phase 2 eyebrow", "default": "As it unfolds" },
-    { "type": "text", "id": "phase_3_eyebrow", "label": "Phase 3 eyebrow", "default": "The drydown" },
+    { "type": "header", "content": "Phase 1" },
+    { "type": "text", "id": "phase_1_eyebrow", "label": "Eyebrow", "default": "First spray" },
+    { "type": "text", "id": "phase_1_text", "label": "Description", "default": "Sun-drenched and golden" },
+    { "type": "text", "id": "phase_1_notes", "label": "Notes", "default": "Pineapple · Red Berries · Apple" },
+    { "type": "header", "content": "Phase 2" },
+    { "type": "text", "id": "phase_2_eyebrow", "label": "Eyebrow", "default": "As it unfolds" },
+    { "type": "text", "id": "phase_2_text", "label": "Description", "default": "A rich double-rose bouquet" },
+    { "type": "text", "id": "phase_2_notes", "label": "Notes", "default": "Bulgarian Rose · Turkish Rose · Jasmine Sambac" },
+    { "type": "header", "content": "Phase 3" },
+    { "type": "text", "id": "phase_3_eyebrow", "label": "Eyebrow", "default": "The drydown" },
+    { "type": "text", "id": "phase_3_text", "label": "Description", "default": "Warm woods, vanilla and musk" },
+    { "type": "text", "id": "phase_3_notes", "label": "Notes", "default": "Musk · Vanilla · Amber" },
+    { "type": "header", "content": "Performance" },
+    { "type": "text", "id": "longevity", "label": "Longevity", "default": "8–10 hours" },
+    { "type": "range", "id": "longevity_hours", "label": "Longevity bar (hours of 12)", "min": 0, "max": 12, "step": 1, "default": 9 },
+    { "type": "select", "id": "projection", "label": "Projection", "default": "Heavy", "options": [
+      { "value": "Soft", "label": "Soft" }, { "value": "Moderate", "label": "Moderate" }, { "value": "Strong", "label": "Strong" },
+      { "value": "Heavy", "label": "Heavy" }, { "value": "Enormous", "label": "Enormous" }
+    ] },
+    { "type": "text", "id": "occasions", "label": "Occasions", "info": "Comma separated", "default": "Social events, Date night, Casual, Evening" },
+    { "type": "text", "id": "seasons", "label": "Seasons", "info": "Comma separated", "default": "Spring, Summer, Autumn, Winter" },
     { "type": "text", "id": "footnote", "label": "Footnote", "default": "Longevity and projection vary with skin and application." }
   ],
   "presets": [{ "name": "Khrisha how it wears" }],

@@ -7,8 +7,14 @@
   assign current_variant = product.selected_or_first_available_variant
   assign mf = product.metafields.custom
   assign display_name = mf.display_name.value | default: product.title
+  # Metafields win; the section settings are the fallback (editable in the theme editor).
   assign families = mf.scent_families.value
-  assign badge = mf.badge.value
+  if families == blank
+    assign families = section.settings.families | split: ','
+  endif
+  assign badge = mf.badge.value | default: section.settings.badge
+  assign tagline = mf.tagline.value | default: section.settings.tagline
+  assign fallback_captions = section.settings.captions | split: ','
   assign form_id = 'kh-product-form-' | append: section.id
 
   assign crumb_collection = section.settings.breadcrumb_collection
@@ -125,13 +131,14 @@
         {%- if families != blank -%}
           <div class="detail-families">
             {%- for family in families -%}
+              {%- assign family = family | strip -%}
               <span class="family-tag scent-family-{{ family | handleize }}"><span aria-hidden="true"></span>{{ family }}</span>
             {%- endfor -%}
           </div>
         {%- endif -%}
 
-        {%- if mf.tagline != blank -%}
-          <p class="detail-hook">{{ mf.tagline.value }}</p>
+        {%- if tagline != blank -%}
+          <p class="detail-hook">{{ tagline }}</p>
         {%- endif -%}
 
         {%- form 'product', product, id: form_id, class: 'kh-product-form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
@@ -140,7 +147,7 @@
           {%- unless single_default_variant -%}
             <div class="size-options" role="group" aria-label="{{ product.options.first | default: 'Size' }}">
               {%- for variant in product.variants -%}
-                {%- assign caption = variant.metafields.custom.caption.value -%}
+                {%- assign caption = variant.metafields.custom.caption.value | default: fallback_captions[forloop.index0] | strip -%}
                 <button
                   type="button"
                   class="size-option{% unless variant.available %} is-unavailable{% endunless %}"
@@ -246,6 +253,12 @@
     { "type": "header", "content": "Breadcrumb" },
     { "type": "collection", "id": "breadcrumb_collection", "label": "Breadcrumb collection", "info": "Defaults to the collection the shopper came from, then the product's first collection." },
     { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label", "default": "Fragrances" },
+    { "type": "header", "content": "Product details" },
+    { "type": "paragraph", "content": "Used when the product's custom.badge, custom.scent_families, custom.tagline and variant custom.caption metafields are empty." },
+    { "type": "text", "id": "badge", "label": "Badge", "default": "Bestseller" },
+    { "type": "text", "id": "families", "label": "Scent families", "info": "Comma separated: Fresh, Floral, Fruity, Woody, Amber, Sweet", "default": "Fruity, Floral, Sweet" },
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Liquid gold — mesmerising, fascinating, and utterly enticing." },
+    { "type": "text", "id": "captions", "label": "Size captions", "info": "Comma separated, in variant order", "default": "Full bottle, Try it first" },
     { "type": "header", "content": "Buy box" },
     { "type": "text", "id": "button_label", "label": "Add to cart label", "default": "Add to bag" },
     { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout button", "default": true },

@@ -96,8 +96,9 @@
       <div class="discovery-buying buying-box">
         <p class="eyebrow">{{ section.settings.eyebrow }}</p>
         <h1>{{ display_name }}</h1>
-        {%- if mf.tagline != blank -%}
-          <p class="discovery-intro">{{ mf.tagline.value }}</p>
+        {%- assign tagline = mf.tagline.value | default: section.settings.tagline -%}
+        {%- if tagline != blank -%}
+          <p class="discovery-intro">{{ tagline }}</p>
         {%- endif -%}
         <div class="discovery-price">
           <strong>{{ current_variant.price | money }}</strong>
@@ -243,6 +244,7 @@
     { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label", "default": "Samples" },
     { "type": "header", "content": "Content" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Khrisha Perfumery · personalised for you" },
+    { "type": "text", "id": "tagline", "label": "Tagline", "info": "Replaced by custom.tagline when filled.", "default": "Your next favourite fragrance starts here." },
     { "type": "text", "id": "caption_eyebrow", "label": "Gallery caption eyebrow", "default": "Six scents. Your own story." },
     { "type": "text", "id": "caption_text", "label": "Gallery caption", "default": "A little collection of possibilities." },
     { "type": "header", "content": "Set builder" },

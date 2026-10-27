@@ -1,20 +1,22 @@
 {%- comment -%}
   "The scent profile": note pyramid + main accords.
-  Notes:   custom.top_notes / custom.heart_notes / custom.base_notes
-           (list of `scent_note` metaobjects with `name` + `image` fields)
-  Accords: custom.main_accords (list of text, "Name | strength 0-100", strength optional)
+  Notes:   custom.top_notes / heart_notes / base_notes (lists of `scent_note` metaobjects:
+           name + image). When empty, the comma-separated notes in this section's settings
+           are used; bundled kh-note-<name>.jpg images cover the default notes.
+  Accords: custom.main_accords (list of "Name | strength"), else the section setting.
 {%- endcomment -%}
 {%- liquid
   assign mf = product.metafields.custom
   assign tiers = 'top_notes,heart_notes,base_notes' | split: ','
-  assign has_notes = false
-  if mf.top_notes != blank or mf.heart_notes != blank or mf.base_notes != blank
-    assign has_notes = true
-  endif
+  # Notes with an image bundled in theme assets (kh-note-<handle>.jpg).
+  assign bundled_notes = ',pineapple,red-berries,apple,bulgarian-rose,turkish-rose,jasmine-sambac,musk,vanilla,amber,'
+
   assign accords = mf.main_accords.value
+  if accords == blank
+    assign accords = section.settings.accords | split: ','
+  endif
 -%}
 
-{%- if has_notes or accords != blank -%}
 <div class="kh">
   <section class="profile-band section-space">
     <div class="kh-wrap">
@@ -22,49 +24,65 @@
         <h2 class="section-title">{{ section.settings.heading }}</h2>
       </div>
 
-      <div class="profile-columns{% unless has_notes and accords != blank %} is-single{% endunless %}">
-        {%- if has_notes -%}
-          <div class="profile-col">
-            <p class="eyebrow">{{ section.settings.notes_label }}</p>
-            <div class="scent-pyramid">
-              {%- for tier in tiers -%}
-                {%- liquid
-                  assign notes = mf[tier].value
-                  assign n = forloop.index
-                  assign label_key = 'tier_' | append: n | append: '_label'
-                  assign time_key = 'tier_' | append: n | append: '_time'
-                -%}
-                {%- if notes != blank -%}
-                  <div class="pyramid-tier tier-{{ forloop.index0 }}">
-                    <div class="tier-label">
-                      <span class="tier-index">0{{ n }}</span>
-                      <div>
-                        <p class="eyebrow">{{ section.settings[label_key] }}</p>
-                        <p class="tier-time">{{ section.settings[time_key] }}</p>
-                      </div>
+      <div class="profile-columns{% if accords == blank %} is-single{% endif %}">
+        <div class="profile-col">
+          <p class="eyebrow">{{ section.settings.notes_label }}</p>
+          <div class="scent-pyramid">
+            {%- for tier in tiers -%}
+              {%- liquid
+                assign n = forloop.index
+                assign label_key = 'tier_' | append: n | append: '_label'
+                assign time_key = 'tier_' | append: n | append: '_time'
+                assign notes_key = 'tier_' | append: n | append: '_notes'
+                assign notes = mf[tier].value
+                assign from_metafield = true
+                if notes == blank
+                  assign notes = section.settings[notes_key] | split: ','
+                  assign from_metafield = false
+                endif
+              -%}
+              {%- if notes != blank -%}
+                <div class="pyramid-tier tier-{{ forloop.index0 }}">
+                  <div class="tier-label">
+                    <span class="tier-index">0{{ n }}</span>
+                    <div>
+                      <p class="eyebrow">{{ section.settings[label_key] }}</p>
+                      <p class="tier-time">{{ section.settings[time_key] }}</p>
                     </div>
-                    <div class="tier-notes">
-                      {%- for note in notes -%}
-                        {%- liquid
+                  </div>
+                  <div class="tier-notes">
+                    {%- for note in notes -%}
+                      {%- liquid
+                        if from_metafield
                           assign note_name = note.name.value | default: note
                           assign note_image = note.image.value
-                        -%}
+                        else
+                          assign note_name = note | strip
+                          assign note_image = blank
+                        endif
+                        assign note_handle = note_name | handleize
+                        assign bundled_key = ',' | append: note_handle | append: ','
+                      -%}
+                      {%- if note_name != blank -%}
                         <span class="note-bubble">
                           {%- if note_image != blank -%}
                             {{ note_image | image_url: width: 128, height: 128, crop: 'center' | image_tag: alt: '', loading: 'lazy', width: 64, height: 64 }}
+                          {%- elsif bundled_notes contains bundled_key -%}
+                            {%- assign asset_name = 'kh-note-' | append: note_handle | append: '.jpg' -%}
+                            <img src="{{ asset_name | asset_url }}" alt="" width="64" height="64" loading="lazy">
                           {%- else -%}
                             <span class="note-initial" aria-hidden="true">{{ note_name | slice: 0 }}</span>
                           {%- endif -%}
                           {{ note_name }}
                         </span>
-                      {%- endfor -%}
-                    </div>
+                      {%- endif -%}
+                    {%- endfor -%}
                   </div>
-                {%- endif -%}
-              {%- endfor -%}
-            </div>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
           </div>
-        {%- endif -%}
+        </div>
 
         {%- if accords != blank -%}
           <div class="main-accords">
@@ -95,7 +113,6 @@
     </div>
   </section>
 </div>
-{%- endif -%}
 
 {% schema %}
 {
@@ -103,16 +120,24 @@
   "tag": "section",
   "class": "kh-section",
   "settings": [
-    { "type": "paragraph", "content": "Content comes from the product's custom.top_notes, custom.heart_notes, custom.base_notes and custom.main_accords metafields. The section hides itself when they are empty." },
+    { "type": "paragraph", "content": "Notes and accords below are replaced by the product's custom.top_notes, custom.heart_notes, custom.base_notes and custom.main_accords metafields when those are filled." },
     { "type": "text", "id": "heading", "label": "Heading", "default": "The scent profile" },
     { "type": "text", "id": "notes_label", "label": "Notes label", "default": "The notes" },
     { "type": "text", "id": "accords_label", "label": "Accords label", "default": "Main accords" },
-    { "type": "text", "id": "tier_1_label", "label": "Tier 1 label", "default": "Top" },
-    { "type": "text", "id": "tier_1_time", "label": "Tier 1 timing", "default": "First 15 minutes" },
-    { "type": "text", "id": "tier_2_label", "label": "Tier 2 label", "default": "Heart" },
-    { "type": "text", "id": "tier_2_time", "label": "Tier 2 timing", "default": "1 – 4 hours" },
-    { "type": "text", "id": "tier_3_label", "label": "Tier 3 label", "default": "Base" },
-    { "type": "text", "id": "tier_3_time", "label": "Tier 3 timing", "default": "The lasting trail" }
+    { "type": "header", "content": "Top notes" },
+    { "type": "text", "id": "tier_1_label", "label": "Label", "default": "Top" },
+    { "type": "text", "id": "tier_1_time", "label": "Timing", "default": "First 15 minutes" },
+    { "type": "text", "id": "tier_1_notes", "label": "Notes", "info": "Comma separated", "default": "Pineapple, Red Berries, Apple" },
+    { "type": "header", "content": "Heart notes" },
+    { "type": "text", "id": "tier_2_label", "label": "Label", "default": "Heart" },
+    { "type": "text", "id": "tier_2_time", "label": "Timing", "default": "1 – 4 hours" },
+    { "type": "text", "id": "tier_2_notes", "label": "Notes", "info": "Comma separated", "default": "Bulgarian Rose, Turkish Rose, Jasmine Sambac" },
+    { "type": "header", "content": "Base notes" },
+    { "type": "text", "id": "tier_3_label", "label": "Label", "default": "Base" },
+    { "type": "text", "id": "tier_3_time", "label": "Timing", "default": "The lasting trail" },
+    { "type": "text", "id": "tier_3_notes", "label": "Notes", "info": "Comma separated", "default": "Musk, Vanilla, Amber" },
+    { "type": "header", "content": "Accords" },
+    { "type": "textarea", "id": "accords", "label": "Main accords", "info": "Comma separated, each as Name | strength (0-100), strongest first", "default": "Fruity | 100, Sweet | 78, Fresh | 59, Rose | 56, Musky | 54, Woody | 50, Tropical | 50, Powdery | 48, Amber | 48, Vanilla | 47" }
   ],
   "presets": [{ "name": "Khrisha scent profile" }],
   "enabled_on": { "templates": ["product"] }
